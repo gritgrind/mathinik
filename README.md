@@ -1,1 +1,3 @@
-mathinik readme
+# mathinik
+
+hello from claw
