@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mathinik.local/schemas/mathinik-state.schema.json",
+  "title": "Mathinik Local State Store",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "deviceId", "profiles"],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "deviceId": { "type": "string", "minLength": 1 },
+    "contentVersion": { "type": "string" },
+    "activeProfileId": { "type": "string" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "profiles": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/profile" },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "displayName", "gradeStart", "createdAt", "progress"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "gradeStart": { "type": "integer", "minimum": 1, "maximum": 3 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "lastActiveAt": { "type": "string", "format": "date-time" },
+        "avatar": { "$ref": "#/$defs/avatar" },
+        "placement": { "$ref": "#/$defs/placement" },
+        "preferences": { "$ref": "#/$defs/preferences" },
+        "progress": { "$ref": "#/$defs/progress" }
+      }
+    },
+    "avatar": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mascotStyle": { "type": "string" },
+        "color": { "type": "string" }
+      }
+    },
+    "placement": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "used": { "type": "boolean" },
+        "recommendedGrade": { "type": "integer", "minimum": 1, "maximum": 3 },
+        "recommendedSkillId": { "type": "string" },
+        "recommendedLessonId": { "type": "string" },
+        "summary": { "type": "string" }
+      }
+    },
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "soundEnabled": { "type": "boolean" },
+        "reducedMotion": { "type": "boolean" },
+        "handedness": {
+          "type": "string",
+          "enum": ["left", "right", "unknown"]
+        }
+      }
+    },
+    "progress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unlockedLessonIds", "completedLessonIds", "lessonProgress", "skillMastery", "rewards", "resume"],
+      "properties": {
+        "unlockedLessonIds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "completedLessonIds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "lessonProgress": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/lessonProgress" }
+        },
+        "skillMastery": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/skillMastery" }
+        },
+        "rewards": { "$ref": "#/$defs/rewards" },
+        "resume": { "$ref": "#/$defs/resume" }
+      }
+    },
+    "lessonProgress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attemptCount", "bestStars", "completed", "resumable"],
+      "properties": {
+        "attemptCount": { "type": "integer", "minimum": 0 },
+        "bestStars": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "completed": { "type": "boolean" },
+        "resumable": { "type": "boolean" },
+        "lastActivityIndex": { "type": "integer", "minimum": 0 },
+        "lastActivityId": { "type": "string" },
+        "lastPlayedAt": { "type": "string", "format": "date-time" },
+        "improvedOnReplay": { "type": "boolean" }
+      }
+    },
+    "skillMastery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "status"],
+      "properties": {
+        "value": { "type": "number", "minimum": 0, "maximum": 1 },
+        "status": {
+          "type": "string",
+          "enum": ["not-started", "practicing", "approaching-mastery", "mastered"]
+        },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "rewards": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["totalStars", "badgeIds", "mapNodeIds"],
+      "properties": {
+        "totalStars": { "type": "integer", "minimum": 0 },
+        "badgeIds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "mapNodeIds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "resume": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resumable"],
+      "properties": {
+        "lessonId": { "type": "string" },
+        "activityId": { "type": "string" },
+        "activityIndex": { "type": "integer", "minimum": 0 },
+        "resumable": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

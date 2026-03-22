@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "1.0.0",
+  "deviceId": "device-local-001",
+  "contentVersion": "2026.03.21",
+  "activeProfileId": "child-ava",
+  "updatedAt": "2026-03-22T11:20:00Z",
+  "profiles": [
+    {
+      "id": "child-ava",
+      "displayName": "Ava",
+      "gradeStart": 1,
+      "createdAt": "2026-03-22T10:00:00Z",
+      "lastActiveAt": "2026-03-22T11:19:00Z",
+      "avatar": {
+        "mascotStyle": "fox",
+        "color": "purple"
+      },
+      "placement": {
+        "used": true,
+        "recommendedGrade": 1,
+        "recommendedSkillId": "g1-add-within-5",
+        "recommendedLessonId": "g1-add-within-5-lesson-1",
+        "summary": "Strong start with counting and simple addition."
+      },
+      "preferences": {
+        "soundEnabled": true,
+        "reducedMotion": false,
+        "handedness": "right"
+      },
+      "progress": {
+        "unlockedLessonIds": [
+          "g1-add-within-5-lesson-1",
+          "g1-add-within-5-lesson-2"
+        ],
+        "completedLessonIds": [
+          "g1-add-within-5-lesson-1"
+        ],
+        "lessonProgress": {
+          "g1-add-within-5-lesson-1": {
+            "attemptCount": 2,
+            "bestStars": 3,
+            "completed": true,
+            "resumable": false,
+            "lastActivityIndex": 2,
+            "lastActivityId": "quick-check",
+            "lastPlayedAt": "2026-03-22T11:10:00Z",
+            "improvedOnReplay": true
+          },
+          "g1-add-within-5-lesson-2": {
+            "attemptCount": 1,
+            "bestStars": 0,
+            "completed": false,
+            "resumable": true,
+            "lastActivityIndex": 1,
+            "lastActivityId": "build-equation-3-plus-1",
+            "lastPlayedAt": "2026-03-22T11:19:00Z",
+            "improvedOnReplay": false
+          }
+        },
+        "skillMastery": {
+          "g1-add-within-5": {
+            "value": 0.62,
+            "status": "approaching-mastery",
+            "updatedAt": "2026-03-22T11:19:00Z"
+          }
+        },
+        "rewards": {
+          "totalStars": 3,
+          "badgeIds": ["starter-builder"],
+          "mapNodeIds": ["grade-1-add-1"]
+        },
+        "resume": {
+          "lessonId": "g1-add-within-5-lesson-2",
+          "activityId": "build-equation-3-plus-1",
+          "activityIndex": 1,
+          "resumable": true,
+          "updatedAt": "2026-03-22T11:19:00Z"
+        }
+      }
+    }
+  ]
+}
