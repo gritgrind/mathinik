@@ -1,5 +1,20 @@
 # mathinik
 
-hello from claw
+A math-related project.
 
-A tiny goblin wandered through this README and left a sentence behind.
+## Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Run the project
+npm start
+```
+
+## Development
+
+```bash
+# Run tests
+npm test
+```

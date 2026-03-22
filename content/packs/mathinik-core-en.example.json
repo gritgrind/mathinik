@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "1.0.0",
+  "packId": "mathinik-core-en",
+  "title": "Mathinik Core Content",
+  "version": "2026.03.21",
+  "locale": "en",
+  "description": "Example MVP content pack for Mathinik.",
+  "grades": [
+    {
+      "id": "grade-1",
+      "grade": 1,
+      "title": "Grade 1",
+      "skills": [
+        {
+          "id": "g1-add-within-5",
+          "slug": "add-within-5",
+          "title": "Addition Within 5",
+          "domain": "addition-subtraction",
+          "description": "Build and combine small groups to understand addition.",
+          "lessons": [
+            {
+              "id": "g1-add-within-5-lesson-1",
+              "slug": "build-groups-and-equations",
+              "title": "Build Groups and Equations",
+              "goal": "Connect object groups to simple addition equations.",
+              "estimatedMinutes": 6,
+              "reward": {
+                "starsAvailable": 3,
+                "badgeId": "starter-builder",
+                "mapNodeId": "grade-1-add-1"
+              },
+              "activities": [
+                {
+                  "id": "combine-apples",
+                  "type": "object-manipulation",
+                  "prompt": "Move the apples into two groups of 2 and 1.",
+                  "difficulty": "easy",
+                  "hint": {
+                    "text": "Try counting each apple as you move it.",
+                    "visualCue": "highlight-groups"
+                  },
+                  "success": {
+                    "mode": "set-match",
+                    "stars": 2
+                  },
+                  "content": {
+                    "kind": "object-manipulation",
+                    "scene": {
+                      "background": "orchard",
+                      "objects": [
+                        { "id": "apples", "kind": "apple", "count": 3, "groupable": true }
+                      ]
+                    },
+                    "task": "Create one group with 2 apples and one group with 1 apple.",
+                    "validAnswers": [
+                      { "expectedGroups": [2, 1] }
+                    ]
+                  }
+                },
+                {
+                  "id": "build-equation-2-plus-1",
+                  "type": "equation-builder",
+                  "prompt": "Build the equation that matches the apple groups.",
+                  "difficulty": "easy",
+                  "followUp": {
+                    "mode": "second-representation",
+                    "prompt": "Now match the built equation to the right apple picture."
+                  },
+                  "success": {
+                    "mode": "exact-match",
+                    "stars": 3
+                  },
+                  "content": {
+                    "kind": "equation-builder",
+                    "leftSide": [
+                      { "tokenId": "n2" },
+                      { "tokenId": "plus" },
+                      { "tokenId": "n1" }
+                    ],
+                    "rightSide": [
+                      { "tokenId": "equals" },
+                      { "tokenId": "n3" }
+                    ],
+                    "palette": [
+                      { "id": "n1", "type": "number", "label": "1", "value": 1 },
+                      { "id": "n2", "type": "number", "label": "2", "value": 2 },
+                      { "id": "n3", "type": "number", "label": "3", "value": 3 },
+                      { "id": "plus", "type": "operator", "label": "+", "value": "+" },
+                      { "id": "equals", "type": "equals", "label": "=", "value": "=" },
+                      { "id": "group-2", "type": "object-group", "label": "2 apples", "value": 2, "visual": "apples-2" },
+                      { "id": "group-1", "type": "object-group", "label": "1 apple", "value": 1, "visual": "apples-1" }
+                    ],
+                    "validAnswers": [
+                      {
+                        "left": ["n2", "plus", "n1"],
+                        "right": ["equals", "n3"]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "quick-check",
+                  "type": "multiple-choice",
+                  "prompt": "Which picture shows 3 apples altogether?",
+                  "difficulty": "easy",
+                  "success": {
+                    "mode": "choice-match",
+                    "stars": 1
+                  },
+                  "content": {
+                    "kind": "multiple-choice",
+                    "choices": [
+                      { "id": "a", "label": "2 apples", "visual": "apples-2" },
+                      { "id": "b", "label": "3 apples", "visual": "apples-3" },
+                      { "id": "c", "label": "4 apples", "visual": "apples-4" }
+                    ],
+                    "correctChoiceIds": ["b"]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
