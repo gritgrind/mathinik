@@ -1068,8 +1068,9 @@ Do not quietly inflate issue scope on the long-lived branch.
 
 # Agent loop guidance
 
-If an agent is executing the issue loop:
+If an agent is executing issues from this plan:
 - choose only issues whose dependencies are satisfied
+- stay within the currently assigned batch
 - read all listed `References` before implementing
 - keep commit scope aligned with `Suggested commit scope`
 - run relevant validation/tests before finalizing the commit
@@ -1094,3 +1095,4 @@ If opencode or another agent is asked to implement an issue from this plan:
 - implement only the issue’s intended scope
 - keep the branch healthy after the commit
 - assume one issue should normally map to one commit on the long-lived branch
+t on the long-lived branch
