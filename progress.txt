@@ -118,3 +118,37 @@ Current state
 - The lesson runtime now has real playable mechanic components instead of placeholders.
 - Evaluation is centralized and ready for the next feedback and progression rules.
 - The next natural batch starts at hint, retry, explanation, mastery, unlocks, and child progression UI.
+
+2026-03-25 progression batch
+
+Completed work
+- Issues #37 through #41 were created for the post-mechanics feedback and progression batch.
+- The MIP-020 through MIP-024 batch was implemented on one branch with one main commit per issue.
+
+What was added
+- A feedback module for hint, retry, explanation, and follow-up representation decisions.
+- Lesson completion and star calculation from activity attempt history.
+- Skill mastery updates based on lesson outcomes.
+- Unlock and reward logic tied to lesson metadata and local learner state.
+- A second unlockable lesson in the bundled example content pack to exercise progression rules.
+
+Important file landmarks
+- src/lib/feedback/feedback-flow.ts now owns the scaffolded feedback rules.
+- src/lib/progression/lesson-completion.ts computes completion and star outcomes.
+- src/lib/progression/mastery.ts updates skill mastery state.
+- src/lib/progression/unlocks.ts applies unlock and reward grants.
+- content/packs/mathinik-core-en.example.json now includes an unlockable follow-up lesson.
+
+Useful commands
+- pnpm lint
+- pnpm test:unit
+- pnpm test
+
+Learnings from the batch
+- Keeping feedback, evaluation, completion, mastery, and unlocks in separate modules makes the lesson route much easier to evolve without turning it into a giant rules file.
+- Progression logic is easier to verify once the example content pack includes at least one genuinely unlockable next lesson.
+- Follow-up representation rules fit naturally beside feedback flow instead of inside mechanic components.
+
+Current state
+- The repo now covers the full feedback and progression rule layer needed before deeper child-facing map and completion UI work.
+- The next likely batch is child home, map progression, completion presentation, and mascot or personalization UI.
