@@ -1,6 +1,11 @@
 import { EquationBuilderActivity } from '~/components/lesson/EquationBuilderActivity'
+import { ObjectManipulationActivity } from '~/components/lesson/ObjectManipulationActivity'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import type { Activity, EquationBuilderContent } from '~/lib/content/types'
+import type {
+  Activity,
+  EquationBuilderContent,
+  ObjectManipulationContent,
+} from '~/lib/content/types'
 
 type ActivityRendererProps = {
   activity: Activity
@@ -27,15 +32,9 @@ function ObjectManipulationActivityCard({ activity }: ActivityRendererProps) {
   }
 
   return (
-    <RendererCard
-      eyebrow="Object manipulation"
-      title={activity.prompt}
-      tone="bg-accent/45"
-    >
-      <p>Task: {activity.content.task}</p>
-      <p>Scene objects: {activity.content.scene.objects.length}</p>
-      <p>Expected answers: {activity.content.validAnswers.length}</p>
-    </RendererCard>
+    <ObjectManipulationActivity
+      activity={activity as Activity & { content: ObjectManipulationContent }}
+    />
   )
 }
 
