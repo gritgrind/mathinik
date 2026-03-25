@@ -152,3 +152,37 @@ Learnings from the batch
 Current state
 - The repo now covers the full feedback and progression rule layer needed before deeper child-facing map and completion UI work.
 - The next likely batch is child home, map progression, completion presentation, and mascot or personalization UI.
+
+2026-03-26 child experience batch
+
+Completed work
+- Issues #43 through #46 were created for the child-facing UI batch.
+- The MIP-025 through MIP-028 child experience batch was implemented on one branch with one main commit per issue.
+
+What was added
+- A resume-first child home screen shell on the learner route.
+- A dedicated world map route with lesson progression presentation.
+- A lesson completion screen with stars, rewards, and next-step navigation.
+- Lightweight mascot and personalization persistence for each local child profile.
+
+Important file landmarks
+- src/routes/learn.tsx now acts as the child home shell as well as the learner runtime surface.
+- src/routes/learn.map.tsx contains the progression map presentation.
+- src/routes/learn.completed.tsx contains the lesson wrap-up screen.
+- src/lib/child-experience.ts contains child-home derivation helpers.
+- src/lib/map-progress.ts contains map-state derivation.
+- src/lib/state/store.ts now persists mascot selection with local profile data.
+
+Useful commands
+- pnpm lint
+- pnpm test:unit
+- pnpm test
+
+Learnings from the batch
+- The child-facing UI gets much easier to reason about when home, map, completion, and lesson runtime are treated as separate presentation surfaces over the same underlying learner state.
+- A tiny amount of personalization goes a long way once the child name and mascot style appear in the learner home instead of only living in parent setup.
+- Progression UI stays cleaner when it reads unlock and completion state from deterministic progression modules instead of reimplementing rules in the route.
+
+Current state
+- The repo now has a full first-pass child learner flow: home, map entry, lesson runtime, completion wrap-up, and lightweight personalization.
+- The next natural batch is the parent summary screen and then offline or PWA work.
