@@ -10,6 +10,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import type { ReactNode } from 'react'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { NotFound } from '~/components/NotFound'
+import { ReloadPrompt } from '~/components/ReloadPrompt'
 import { getPrimaryNav } from '~/lib/site-shell'
 import appCss from '~/styles/app.css?url'
 
@@ -91,6 +92,7 @@ function RootDocument({ children }: { children: ReactNode }) {
 
           {children}
         </div>
+        <ReloadPrompt />
         <TanStackRouterDevtools position="bottom-right" />
         <Scripts />
       </body>

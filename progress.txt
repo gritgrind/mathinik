@@ -186,3 +186,36 @@ Learnings from the batch
 Current state
 - The repo now has a full first-pass child learner flow: home, map entry, lesson runtime, completion wrap-up, and lightweight personalization.
 - The next natural batch is the parent summary screen and then offline or PWA work.
+
+2026-03-26 offline batch
+
+Completed work
+- Issues #48 through #50 were created for the offline and update flow batch.
+- The MIP-030 through MIP-032 offline batch was implemented on one branch with one main commit per issue.
+
+What was added
+- PWA installability with manifest, service worker registration, and app-shell caching.
+- Offline content-pack caching and version-aware update detection.
+- Safe content refresh behavior that preserves local learner state while clearing invalid content references only when necessary.
+
+Important file landmarks
+- vite.config.ts now includes the PWA plugin configuration.
+- src/components/ReloadPrompt.tsx shows offline-ready and app-refresh prompts.
+- src/lib/offline/content-pack.ts owns content-pack caching and update checks.
+- src/lib/offline/safe-refresh.ts owns safe refresh and state-preservation logic.
+- src/components/ContentPackStatus.tsx exposes the content cache and refresh state in the UI.
+
+Useful commands
+- pnpm lint
+- pnpm test:unit
+- pnpm build
+- pnpm test
+
+Learnings from the batch
+- Keeping offline update behavior separate from content and state modules makes it much easier to protect learner continuity during refreshes.
+- Explicit safe-refresh behavior is better than a silent content swap because it keeps state preservation visible and testable.
+- The app shell and content pack benefit from different offline responsibilities, so treating them as separate caches or flows is cleaner than folding everything into one service-worker assumption.
+
+Current state
+- The repo now supports installability, app-shell offline startup after a prior load, content-pack caching, and a safe update path.
+- The next likely batch is the parent summary screen or additional QA and hardening work around the new learner and offline flows.
