@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build && tsc --noEmit",
+    "build:pages": "pnpm build && node scripts/build-pages.mjs",
     "start": "vite preview --host 127.0.0.1 --port 3000",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
-    "lint": "biome check package.json tsconfig.json biome.json components.json vite.config.ts vitest.config.ts playwright.config.ts README.md src/router.tsx src/components src/lib src/routes src/test tests/e2e",
-    "format": "biome format package.json tsconfig.json biome.json components.json vite.config.ts vitest.config.ts playwright.config.ts README.md src/router.tsx src/components src/lib src/routes src/test tests/e2e --write",
+    "pages:dev": "pnpm build:pages && wrangler pages dev --ip 127.0.0.1 --port 8788",
+    "deploy": "pnpm build:pages && wrangler pages deploy",
+    "lint": "biome check package.json tsconfig.json biome.json components.json playwright.config.ts README.md scripts src/router.tsx src/components src/lib src/routes src/test tests/e2e vite.config.ts vitest.config.ts wrangler.jsonc",
+    "format": "biome format package.json tsconfig.json biome.json components.json playwright.config.ts README.md scripts src/router.tsx src/components src/lib src/routes src/test tests/e2e vite.config.ts vitest.config.ts wrangler.jsonc --write",
     "test": "pnpm test:unit && pnpm test:e2e",
     "test:unit": "vitest run",
     "test:watch": "vitest",
@@ -41,6 +44,7 @@
     "tailwindcss": "^4.1.14",
     "typescript": "^5.9.3",
     "vite": "^8.0.2",
-    "vitest": "^4.0.7"
+    "vitest": "^4.0.7",
+    "wrangler": "^4.77.0"
   }
 }
