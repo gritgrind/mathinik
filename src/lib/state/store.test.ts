@@ -7,6 +7,7 @@ import {
   loadExampleStateStore,
   STATE_STORE_KEY,
   setActiveProfileInStateStore,
+  updateLessonSessionStateInStateStore,
   updateProfilePlacementInStateStore,
 } from './store'
 import { StateStoreValidationError } from './validate-state-store'
@@ -180,5 +181,51 @@ describe('state persistence', () => {
       displayName: 'Milo',
       gradeStart: 3,
     })
+  })
+
+  it('persists resumable lesson session state and clears it on completion', () => {
+    const state = loadExampleStateStore()
+
+    const inProgressState = updateLessonSessionStateInStateStore(
+      state,
+      {
+        profileId: 'child-ava',
+        lessonId: 'g1-add-within-5-lesson-1',
+        activityId: 'build-equation-2-plus-1',
+        activityIndex: 1,
+        resumable: true,
+        completed: false,
+      },
+      {
+        incrementAttempt: true,
+        now: '2026-03-25T10:10:00.000Z',
+      }
+    )
+
+    expect(inProgressState.profiles[0]?.progress.resume).toMatchObject({
+      lessonId: 'g1-add-within-5-lesson-1',
+      activityIndex: 1,
+      resumable: true,
+    })
+
+    const completedState = updateLessonSessionStateInStateStore(
+      inProgressState,
+      {
+        profileId: 'child-ava',
+        lessonId: 'g1-add-within-5-lesson-1',
+        activityId: 'quick-check',
+        activityIndex: 2,
+        resumable: false,
+        completed: true,
+      },
+      {
+        now: '2026-03-25T10:12:00.000Z',
+      }
+    )
+
+    expect(completedState.profiles[0]?.progress.resume.resumable).toBe(false)
+    expect(completedState.profiles[0]?.progress.completedLessonIds).toContain(
+      'g1-add-within-5-lesson-1'
+    )
   })
 })

@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader } from '~/components/ui/card'
 import { getBundledContentRepository } from '~/lib/content/repository'
@@ -7,20 +7,72 @@ import {
   advanceLessonSession,
   getCurrentActivity,
   type LessonSession,
+  resumeLessonSession,
   startLessonSession,
   summarizeLessonSession,
 } from '~/lib/lesson/session-runner'
-import { normalizeContentPack } from '~/lib/models/app-models'
+import {
+  normalizeContentPack,
+  normalizeStateStore,
+} from '~/lib/models/app-models'
+import {
+  createBrowserStatePersistence,
+  createEmptyStateStore,
+  updateLessonSessionStateInStateStore,
+} from '~/lib/state/store'
 
 export const Route = createFileRoute('/learn')({
   component: LearnRoute,
 })
 
 function LearnRoute() {
-  const contentModels = normalizeContentPack(getBundledContentRepository().pack)
+  const contentRepository = getBundledContentRepository()
+  const contentVersion = contentRepository.getContentVersion()
+  const contentModels = useMemo(
+    () => normalizeContentPack(contentRepository.pack),
+    [contentRepository]
+  )
   const lesson = contentModels.lessons[0]
   const activities = contentModels.activitiesByLessonId.get(lesson.id) ?? []
+  const [storageStatus, setStorageStatus] = useState<'loading' | 'ready'>(
+    'loading'
+  )
+  const [localState, setLocalState] = useState(() =>
+    createEmptyStateStore({ contentVersion })
+  )
   const [session, setSession] = useState<LessonSession | null>(null)
+
+  const stateModels = normalizeStateStore(localState)
+  const activeProfile = stateModels.activeProfile
+
+  useEffect(() => {
+    const persistence = createBrowserStatePersistence({ contentVersion })
+    const result = persistence.loadStateStore()
+    setLocalState(result.state)
+    setStorageStatus('ready')
+  }, [contentVersion])
+
+  useEffect(() => {
+    if (session) {
+      return
+    }
+
+    if (!activeProfile?.resumableLessonId) {
+      return
+    }
+
+    if (activeProfile.resumableLessonId !== lesson.id) {
+      return
+    }
+
+    setSession(
+      resumeLessonSession(activeProfile.id, lesson, activities, {
+        activityIndex:
+          localState.profiles.find((profile) => profile.id === activeProfile.id)
+            ?.progress.resume.activityIndex ?? 0,
+      })
+    )
+  }, [activeProfile, activities, lesson, localState.profiles, session])
 
   const currentActivity = session
     ? getCurrentActivity(session, activities)
@@ -31,15 +83,49 @@ function LearnRoute() {
   )
 
   function handleStartLesson() {
-    setSession(startLessonSession('child-preview', lesson, activities))
-  }
-
-  function handleAdvanceLesson() {
-    if (!session) {
+    if (!activeProfile) {
       return
     }
 
-    setSession(advanceLessonSession(session))
+    const persistence = createBrowserStatePersistence({ contentVersion })
+    const nextSession = startLessonSession(activeProfile.id, lesson, activities)
+    const nextState = updateLessonSessionStateInStateStore(
+      localState,
+      {
+        profileId: activeProfile.id,
+        lessonId: lesson.id,
+        activityId: nextSession.activityIds[0],
+        activityIndex: 0,
+        resumable: true,
+        completed: false,
+      },
+      { incrementAttempt: true }
+    )
+
+    setLocalState(persistence.saveStateStore(nextState))
+    setSession(nextSession)
+  }
+
+  function handleAdvanceLesson() {
+    if (!session || !activeProfile) {
+      return
+    }
+
+    const persistence = createBrowserStatePersistence({ contentVersion })
+    const nextSession = advanceLessonSession(session)
+    const nextActivityId =
+      nextSession.activityIds[nextSession.currentActivityIndex]
+    const nextState = updateLessonSessionStateInStateStore(localState, {
+      profileId: activeProfile.id,
+      lessonId: lesson.id,
+      activityId: nextActivityId,
+      activityIndex: nextSession.currentActivityIndex,
+      resumable: nextSession.status !== 'completed',
+      completed: nextSession.status === 'completed',
+    })
+
+    setLocalState(persistence.saveStateStore(nextState))
+    setSession(nextSession)
   }
 
   return (
@@ -72,6 +158,13 @@ function LearnRoute() {
               <p>Lesson: {lesson.title}</p>
               <p>{lesson.activityCount} activities in this starter flow</p>
               <p>Status: {summary?.status ?? 'idle'}</p>
+              <p>
+                Active learner:{' '}
+                {activeProfile?.displayName ??
+                  (storageStatus === 'loading'
+                    ? 'Loading profile...'
+                    : 'Create a profile in Parents first')}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -124,12 +217,24 @@ function LearnRoute() {
                   Start the first lesson session to prove the app can move from
                   content definitions into a tracked activity flow.
                 </p>
+                {activeProfile?.resumableLessonId === lesson.id ? (
+                  <p>
+                    A resumable session was found and restored to activity{' '}
+                    {(localState.profiles.find(
+                      (profile) => profile.id === activeProfile.id
+                    )?.progress.resume.activityIndex ?? 0) + 1}
+                    .
+                  </p>
+                ) : null}
                 <button
                   className={buttonVariants({ size: 'lg' })}
                   onClick={handleStartLesson}
                   type="button"
+                  disabled={!activeProfile}
                 >
-                  Start lesson skeleton
+                  {activeProfile?.resumableLessonId === lesson.id
+                    ? 'Restart lesson skeleton'
+                    : 'Start lesson skeleton'}
                 </button>
               </div>
             )}

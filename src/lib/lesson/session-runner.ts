@@ -24,6 +24,11 @@ export type LessonSessionSummary = {
   lastCompletedActivityId: string | null
 }
 
+export type LessonResumeState = {
+  activityIndex: number
+  startedAt?: string
+}
+
 export function startLessonSession(
   profileId: string,
   lesson: LessonModel,
@@ -45,6 +50,31 @@ export function startLessonSession(
     status: 'in-progress',
     startedAt: now,
     completedAt: null,
+  }
+}
+
+export function resumeLessonSession(
+  profileId: string,
+  lesson: LessonModel,
+  activities: ActivityModel[],
+  resume: LessonResumeState,
+  now = new Date().toISOString()
+): LessonSession {
+  const session = startLessonSession(
+    profileId,
+    lesson,
+    activities,
+    resume.startedAt ?? now
+  )
+  const currentActivityIndex = Math.min(
+    Math.max(resume.activityIndex, 0),
+    activities.length - 1
+  )
+
+  return {
+    ...session,
+    currentActivityIndex,
+    completedActivityIds: session.activityIds.slice(0, currentActivityIndex),
   }
 }
 

@@ -4,6 +4,7 @@ import { normalizeContentPack } from '~/lib/models/app-models'
 import {
   advanceLessonSession,
   getCurrentActivity,
+  resumeLessonSession,
   startLessonSession,
   summarizeLessonSession,
 } from './session-runner'
@@ -48,5 +49,23 @@ describe('lesson session runner', () => {
       status: 'completed',
       lastCompletedActivityId: 'quick-check',
     })
+  })
+
+  it('restores a resumable session from the last known activity index', () => {
+    const models = normalizeContentPack(loadBundledContentPack())
+    const lesson = models.lessons[0]
+    const activities = models.activitiesByLessonId.get(lesson.id) ?? []
+
+    const session = resumeLessonSession('child-preview', lesson, activities, {
+      activityIndex: 2,
+      startedAt: '2026-03-25T11:00:00.000Z',
+    })
+
+    expect(session.currentActivityIndex).toBe(2)
+    expect(session.completedActivityIds).toEqual([
+      'combine-apples',
+      'build-equation-2-plus-1',
+    ])
+    expect(getCurrentActivity(session, activities)?.id).toBe('quick-check')
   })
 })

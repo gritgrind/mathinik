@@ -36,6 +36,15 @@ export type PlacementShellInput = {
   summary?: string
 }
 
+export type LessonSessionStateInput = {
+  profileId: string
+  lessonId: string
+  activityId?: string
+  activityIndex: number
+  resumable: boolean
+  completed: boolean
+}
+
 export function createEmptyStateStore(
   options: { contentVersion?: string; deviceId?: string; now?: string } = {}
 ): StateStore {
@@ -171,6 +180,81 @@ export function setActiveProfileInStateStore(
     ...state,
     activeProfileId: profileId,
     updatedAt: options.now ?? new Date().toISOString(),
+    profiles: nextProfiles,
+  })
+}
+
+export function updateLessonSessionStateInStateStore(
+  state: StateStore,
+  input: LessonSessionStateInput,
+  options: { incrementAttempt?: boolean; now?: string } = {}
+): StateStore {
+  const now = options.now ?? new Date().toISOString()
+
+  const nextProfiles = state.profiles.map((profile) => {
+    if (profile.id !== input.profileId) {
+      return profile
+    }
+
+    const existingLessonProgress = profile.progress.lessonProgress[
+      input.lessonId
+    ] ?? {
+      attemptCount: 0,
+      bestStars: 0,
+      completed: false,
+      resumable: false,
+    }
+
+    const lessonProgress = {
+      ...profile.progress.lessonProgress,
+      [input.lessonId]: {
+        ...existingLessonProgress,
+        attemptCount:
+          existingLessonProgress.attemptCount +
+          (options.incrementAttempt ? 1 : 0),
+        completed: input.completed,
+        resumable: input.resumable,
+        lastActivityIndex: input.activityIndex,
+        lastActivityId: input.activityId,
+        lastPlayedAt: now,
+      },
+    }
+
+    const completedLessonIds = input.completed
+      ? Array.from(
+          new Set([...profile.progress.completedLessonIds, input.lessonId])
+        )
+      : profile.progress.completedLessonIds.filter(
+          (lessonId) => lessonId !== input.lessonId
+        )
+
+    return {
+      ...profile,
+      lastActiveAt: now,
+      progress: {
+        ...profile.progress,
+        lessonProgress,
+        completedLessonIds,
+        resume: input.resumable
+          ? {
+              lessonId: input.lessonId,
+              activityId: input.activityId,
+              activityIndex: input.activityIndex,
+              resumable: true,
+              updatedAt: now,
+            }
+          : {
+              resumable: false,
+              updatedAt: now,
+            },
+      },
+    }
+  })
+
+  return parseStateStore({
+    ...state,
+    activeProfileId: input.profileId,
+    updatedAt: now,
     profiles: nextProfiles,
   })
 }
