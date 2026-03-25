@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
+import { ActivityRenderer } from '~/components/lesson/ActivityRenderer'
 import { buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader } from '~/components/ui/card'
 import { getBundledContentRepository } from '~/lib/content/repository'
@@ -77,6 +78,10 @@ function LearnRoute() {
   const currentActivity = session
     ? getCurrentActivity(session, activities)
     : null
+  const currentActivityDefinition =
+    currentActivity && session
+      ? contentRepository.getActivity(session.lessonId, currentActivity.id)
+      : null
   const summary = useMemo(
     () => (session ? summarizeLessonSession(session) : null),
     [session]
@@ -184,8 +189,11 @@ function LearnRoute() {
                   Current activity {session.currentActivityIndex + 1} of{' '}
                   {session.activityIds.length}
                 </p>
-                <p>{currentActivity?.prompt}</p>
-                <p>Renderer type: {currentActivity?.type}</p>
+                {currentActivityDefinition ? (
+                  <ActivityRenderer activity={currentActivityDefinition} />
+                ) : (
+                  <p>Missing activity definition for this session step.</p>
+                )}
                 <div className="flex flex-wrap gap-3">
                   <button
                     className={buttonVariants({ size: 'lg' })}
