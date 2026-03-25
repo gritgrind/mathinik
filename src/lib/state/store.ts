@@ -26,6 +26,16 @@ export type CreateProfileInput = {
   gradeStart: 1 | 2 | 3
 }
 
+export type PlacementShellInput = {
+  profileId: string
+  mode: 'manual' | 'placement'
+  gradeStart: 1 | 2 | 3
+  recommendedGrade?: 1 | 2 | 3
+  recommendedSkillId?: string
+  recommendedLessonId?: string
+  summary?: string
+}
+
 export function createEmptyStateStore(
   options: { contentVersion?: string; deviceId?: string; now?: string } = {}
 ): StateStore {
@@ -99,6 +109,47 @@ export function addProfileToStateStore(
     activeProfileId: profile.id,
     updatedAt: options.now ?? new Date().toISOString(),
     profiles: [...state.profiles, profile],
+  })
+}
+
+export function updateProfilePlacementInStateStore(
+  state: StateStore,
+  input: PlacementShellInput,
+  options: { now?: string } = {}
+): StateStore {
+  const nextProfiles = state.profiles.map((profile) => {
+    if (profile.id !== input.profileId) {
+      return profile
+    }
+
+    return {
+      ...profile,
+      gradeStart: input.gradeStart,
+      lastActiveAt: options.now ?? new Date().toISOString(),
+      placement:
+        input.mode === 'placement'
+          ? {
+              used: true,
+              recommendedGrade: input.recommendedGrade ?? input.gradeStart,
+              recommendedSkillId: input.recommendedSkillId,
+              recommendedLessonId: input.recommendedLessonId,
+              summary:
+                input.summary ??
+                'Placement shell recommendation saved locally.',
+            }
+          : {
+              used: false,
+              recommendedGrade: input.gradeStart,
+              summary: input.summary ?? 'Manual starting grade selected.',
+            },
+    }
+  })
+
+  return parseStateStore({
+    ...state,
+    activeProfileId: input.profileId,
+    updatedAt: options.now ?? new Date().toISOString(),
+    profiles: nextProfiles,
   })
 }
 

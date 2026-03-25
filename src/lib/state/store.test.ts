@@ -6,6 +6,7 @@ import {
   createStatePersistence,
   loadExampleStateStore,
   STATE_STORE_KEY,
+  updateProfilePlacementInStateStore,
 } from './store'
 import { StateStoreValidationError } from './validate-state-store'
 
@@ -101,6 +102,52 @@ describe('state persistence', () => {
     expect(nextState.profiles[0]).toMatchObject({
       displayName: 'Milo',
       gradeStart: 2,
+    })
+  })
+
+  it('stores manual or placement onboarding recommendations safely', () => {
+    const state = loadExampleStateStore()
+
+    const placedState = updateProfilePlacementInStateStore(
+      state,
+      {
+        profileId: 'child-ava',
+        mode: 'placement',
+        gradeStart: 1,
+        recommendedGrade: 1,
+        recommendedSkillId: 'g1-add-within-5',
+        recommendedLessonId: 'g1-add-within-5-lesson-1',
+        summary: 'Placement suggests starting with addition within 5.',
+      },
+      {
+        now: '2026-03-25T10:00:00.000Z',
+      }
+    )
+
+    expect(placedState.profiles[0]?.placement).toMatchObject({
+      used: true,
+      recommendedLessonId: 'g1-add-within-5-lesson-1',
+    })
+
+    const manualState = updateProfilePlacementInStateStore(
+      placedState,
+      {
+        profileId: 'child-ava',
+        mode: 'manual',
+        gradeStart: 2,
+        summary: 'Manual grade 2 starting point selected.',
+      },
+      {
+        now: '2026-03-25T10:05:00.000Z',
+      }
+    )
+
+    expect(manualState.profiles[0]).toMatchObject({
+      gradeStart: 2,
+      placement: {
+        used: false,
+        recommendedGrade: 2,
+      },
     })
   })
 })

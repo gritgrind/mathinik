@@ -42,6 +42,11 @@ export type ProfileModel = {
   resumableLessonId: string | null
   resumableActivityId: string | null
   lastActiveAt: string | null
+  placementUsed: boolean
+  recommendedGrade: number | null
+  recommendedSkillId: string | null
+  recommendedLessonId: string | null
+  placementSummary: string | null
 }
 
 export type NormalizedContentModels = {
@@ -127,6 +132,11 @@ export function normalizeStateStore(state: StateStore): NormalizedStateModels {
     resumableLessonId: profile.progress.resume.lessonId ?? null,
     resumableActivityId: profile.progress.resume.activityId ?? null,
     lastActiveAt: profile.lastActiveAt ?? null,
+    placementUsed: profile.placement?.used ?? false,
+    recommendedGrade: profile.placement?.recommendedGrade ?? null,
+    recommendedSkillId: profile.placement?.recommendedSkillId ?? null,
+    recommendedLessonId: profile.placement?.recommendedLessonId ?? null,
+    placementSummary: profile.placement?.summary ?? null,
   }))
 
   const profilesById = new Map(profiles.map((profile) => [profile.id, profile]))
