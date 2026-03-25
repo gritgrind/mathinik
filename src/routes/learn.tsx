@@ -5,6 +5,10 @@ import { buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader } from '~/components/ui/card'
 import { getBundledContentRepository } from '~/lib/content/repository'
 import {
+  type ActivityAttemptRecord,
+  resolveFeedbackAction,
+} from '~/lib/feedback/feedback-flow'
+import {
   advanceLessonSession,
   getCurrentActivity,
   type LessonSession,
@@ -42,6 +46,9 @@ function LearnRoute() {
     createEmptyStateStore({ contentVersion })
   )
   const [session, setSession] = useState<LessonSession | null>(null)
+  const [attemptsByActivityId, setAttemptsByActivityId] = useState<
+    Record<string, ActivityAttemptRecord[]>
+  >({})
 
   const stateModels = normalizeStateStore(localState)
   const activeProfile = stateModels.activeProfile
@@ -86,6 +93,13 @@ function LearnRoute() {
     () => (session ? summarizeLessonSession(session) : null),
     [session]
   )
+  const feedbackAction =
+    currentActivityDefinition && currentActivity
+      ? resolveFeedbackAction(
+          currentActivityDefinition,
+          attemptsByActivityId[currentActivity.id] ?? []
+        )
+      : null
 
   function handleStartLesson() {
     if (!activeProfile) {
@@ -131,6 +145,20 @@ function LearnRoute() {
 
     setLocalState(persistence.saveStateStore(nextState))
     setSession(nextSession)
+  }
+
+  function handleRecordAttempt(correct: boolean) {
+    if (!currentActivity) {
+      return
+    }
+
+    setAttemptsByActivityId((currentAttempts) => ({
+      ...currentAttempts,
+      [currentActivity.id]: [
+        ...(currentAttempts[currentActivity.id] ?? []),
+        { correct },
+      ],
+    }))
   }
 
   return (
@@ -194,6 +222,30 @@ function LearnRoute() {
                 ) : (
                   <p>Missing activity definition for this session step.</p>
                 )}
+                {feedbackAction ? (
+                  <div className="space-y-3 rounded-[1.5rem] border border-border/60 bg-background/75 p-4">
+                    <p className="text-sm font-semibold text-foreground">
+                      Feedback step: {feedbackAction.kind}
+                    </p>
+                    <p>{feedbackAction.message}</p>
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        className={buttonVariants({ variant: 'secondary' })}
+                        onClick={() => handleRecordAttempt(false)}
+                        type="button"
+                      >
+                        Record struggle
+                      </button>
+                      <button
+                        className={buttonVariants({ variant: 'secondary' })}
+                        onClick={() => handleRecordAttempt(true)}
+                        type="button"
+                      >
+                        Record success
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
                 <div className="flex flex-wrap gap-3">
                   <button
                     className={buttonVariants({ size: 'lg' })}
