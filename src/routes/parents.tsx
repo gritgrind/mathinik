@@ -13,6 +13,7 @@ import {
   createChildProfile,
   createEmptyStateStore,
   setActiveProfileInStateStore,
+  updateProfileAvatarInStateStore,
   updateProfilePlacementInStateStore,
 } from '~/lib/state/store'
 
@@ -210,6 +211,32 @@ function ParentsRoute() {
         caughtError instanceof Error
           ? caughtError.message
           : 'Could not switch the active child profile.'
+      )
+    }
+  }
+
+  function handleSelectMascot(mascotStyle: string, color: string) {
+    if (!activeProfile) {
+      setError('Create a child profile before choosing a mascot.')
+      return
+    }
+
+    setError(null)
+
+    try {
+      const persistence = createBrowserStatePersistence({ contentVersion })
+      const nextState = updateProfileAvatarInStateStore(localState, {
+        profileId: activeProfile.id,
+        mascotStyle,
+        color,
+      })
+
+      setLocalState(persistence.saveStateStore(nextState))
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : 'Could not save the mascot choice.'
       )
     }
   }
@@ -465,6 +492,66 @@ function ParentsRoute() {
                 Save placement shell
               </button>
             </form>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <Card className="border-border/60 bg-card/90 shadow-xl shadow-primary/10">
+          <CardHeader>
+            <h2 className="text-2xl font-black tracking-tight">
+              Mascot and personalization
+            </h2>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm leading-6 text-muted-foreground">
+            <p>
+              Give the active child a lightweight guide style so the learner UI
+              feels more personal without becoming a heavy avatar system.
+            </p>
+            <div className="grid gap-3 md:grid-cols-3">
+              {[
+                ['fox-guide', 'citrus'],
+                ['otter-guide', 'sunrise'],
+                ['owl-guide', 'ocean'],
+              ].map(([mascotStyle, color]) => (
+                <button
+                  className={buttonVariants({
+                    variant:
+                      activeProfile?.avatarLabel === mascotStyle
+                        ? 'default'
+                        : 'secondary',
+                  })}
+                  key={mascotStyle}
+                  onClick={() => handleSelectMascot(mascotStyle, color)}
+                  type="button"
+                >
+                  {mascotStyle.replace('-', ' ')}
+                </button>
+              ))}
+            </div>
+            <p>
+              Current style: {activeProfile?.avatarLabel ?? 'default mascot'}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/60 bg-secondary text-secondary-foreground shadow-xl shadow-secondary/15">
+          <CardHeader>
+            <h2 className="text-2xl font-black tracking-tight">
+              Child-facing preview
+            </h2>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-6 text-secondary-foreground/85">
+            <p>
+              {activeProfile?.displayName ?? 'Learner'} and the selected mascot
+              will now appear in child-facing UI.
+            </p>
+            <p>
+              Mascot palette:{' '}
+              {localState.profiles.find(
+                (profile) => profile.id === activeProfile?.id
+              )?.avatar?.color ?? 'default'}
+            </p>
           </CardContent>
         </Card>
       </section>

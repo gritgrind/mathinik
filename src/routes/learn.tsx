@@ -299,12 +299,23 @@ function LearnRoute() {
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
                   Active learner
                 </p>
-                <p className="mt-2 text-xl font-black tracking-tight">
-                  {activeProfile.displayName}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Mascot style: {activeProfile.avatarLabel}
-                </p>
+                <div className="mt-3 flex items-center gap-4">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary/15 text-2xl">
+                    {activeProfile.avatarLabel.includes('owl')
+                      ? 'O'
+                      : activeProfile.avatarLabel.includes('otter')
+                        ? 'T'
+                        : 'F'}
+                  </div>
+                  <div>
+                    <p className="text-xl font-black tracking-tight">
+                      {activeProfile.displayName}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Mascot style: {activeProfile.avatarLabel}
+                    </p>
+                  </div>
+                </div>
               </div>
             ) : null}
           </CardContent>

@@ -8,6 +8,7 @@ import {
   STATE_STORE_KEY,
   setActiveProfileInStateStore,
   updateLessonSessionStateInStateStore,
+  updateProfileAvatarInStateStore,
   updateProfilePlacementInStateStore,
 } from './store'
 import { StateStoreValidationError } from './validate-state-store'
@@ -227,5 +228,22 @@ describe('state persistence', () => {
     expect(completedState.profiles[0]?.progress.completedLessonIds).toContain(
       'g1-add-within-5-lesson-1'
     )
+  })
+
+  it('persists lightweight mascot personalization locally', () => {
+    const state = updateProfileAvatarInStateStore(
+      loadExampleStateStore(),
+      {
+        profileId: 'child-ava',
+        mascotStyle: 'otter-guide',
+        color: 'sunrise',
+      },
+      '2026-03-25T23:00:00.000Z'
+    )
+
+    expect(state.profiles[0]?.avatar).toEqual({
+      mascotStyle: 'otter-guide',
+      color: 'sunrise',
+    })
   })
 })
