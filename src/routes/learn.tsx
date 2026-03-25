@@ -21,6 +21,10 @@ import {
   normalizeStateStore,
 } from '~/lib/models/app-models'
 import {
+  applyLessonCompletionToStateStore,
+  calculateLessonCompletion,
+} from '~/lib/progression/lesson-completion'
+import {
   createBrowserStatePersistence,
   createEmptyStateStore,
   updateLessonSessionStateInStateStore,
@@ -91,10 +95,35 @@ function LearnRoute() {
     currentActivity && session
       ? contentRepository.getActivity(session.lessonId, currentActivity.id)
       : null
+  const lessonDefinition = contentRepository.getLesson(lesson.id)
+  const lessonActivityDefinitions = useMemo(
+    () =>
+      (lessonDefinition?.activities ?? [])
+        .map((activity) =>
+          contentRepository.getActivity(lesson.id, activity.id)
+        )
+        .filter((activity): activity is NonNullable<typeof activity> =>
+          Boolean(activity)
+        ),
+    [contentRepository, lesson.id, lessonDefinition]
+  )
   const summary = useMemo(
     () => (session ? summarizeLessonSession(session) : null),
     [session]
   )
+  const lessonOutcome = session
+    ? calculateLessonCompletion(
+        lessonActivityDefinitions,
+        attemptsByActivityId,
+        (localState.profiles.find((profile) => profile.id === activeProfile?.id)
+          ?.progress.lessonProgress[lesson.id]?.bestStars as
+          | 0
+          | 1
+          | 2
+          | 3
+          | undefined) ?? 0
+      )
+    : null
   const feedbackAction =
     currentActivityDefinition && currentActivity
       ? resolveFeedbackAction(
@@ -149,7 +178,27 @@ function LearnRoute() {
       completed: nextSession.status === 'completed',
     })
 
-    setLocalState(persistence.saveStateStore(nextState))
+    const completedState =
+      nextSession.status === 'completed'
+        ? applyLessonCompletionToStateStore(
+            nextState,
+            nextSession,
+            calculateLessonCompletion(
+              lessonActivityDefinitions,
+              attemptsByActivityId,
+              (localState.profiles.find(
+                (profile) => profile.id === activeProfile.id
+              )?.progress.lessonProgress[lesson.id]?.bestStars as
+                | 0
+                | 1
+                | 2
+                | 3
+                | undefined) ?? 0
+            )
+          )
+        : nextState
+
+    setLocalState(persistence.saveStateStore(completedState))
     setSession(nextSession)
   }
 
@@ -339,6 +388,7 @@ function LearnRoute() {
               {summary?.totalActivities ?? lesson.activityCount}
             </p>
             <p>Completed activities: {summary?.completedActivities ?? 0}</p>
+            <p>Earned stars: {lessonOutcome?.earnedStars ?? 0}</p>
             <p>
               Last completed step:{' '}
               {summary?.lastCompletedActivityId ?? 'None yet'}
