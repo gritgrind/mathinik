@@ -1,5 +1,15 @@
+import { EquationBuilderActivity } from '~/components/lesson/EquationBuilderActivity'
+import { MultipleChoiceActivity } from '~/components/lesson/MultipleChoiceActivity'
+import { NumericInputActivity } from '~/components/lesson/NumericInputActivity'
+import { ObjectManipulationActivity } from '~/components/lesson/ObjectManipulationActivity'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import type { Activity } from '~/lib/content/types'
+import type {
+  Activity,
+  EquationBuilderContent,
+  MultipleChoiceContent,
+  NumericInputContent,
+  ObjectManipulationContent,
+} from '~/lib/content/types'
 
 type ActivityRendererProps = {
   activity: Activity
@@ -26,15 +36,9 @@ function ObjectManipulationActivityCard({ activity }: ActivityRendererProps) {
   }
 
   return (
-    <RendererCard
-      eyebrow="Object manipulation"
-      title={activity.prompt}
-      tone="bg-accent/45"
-    >
-      <p>Task: {activity.content.task}</p>
-      <p>Scene objects: {activity.content.scene.objects.length}</p>
-      <p>Expected answers: {activity.content.validAnswers.length}</p>
-    </RendererCard>
+    <ObjectManipulationActivity
+      activity={activity as Activity & { content: ObjectManipulationContent }}
+    />
   )
 }
 
@@ -44,15 +48,9 @@ function EquationBuilderActivityCard({ activity }: ActivityRendererProps) {
   }
 
   return (
-    <RendererCard
-      eyebrow="Equation builder"
-      title={activity.prompt}
-      tone="bg-primary/10"
-    >
-      <p>Palette tokens: {activity.content.palette.length}</p>
-      <p>Left side slots: {activity.content.leftSide.length}</p>
-      <p>Valid equations: {activity.content.validAnswers.length}</p>
-    </RendererCard>
+    <EquationBuilderActivity
+      activity={activity as Activity & { content: EquationBuilderContent }}
+    />
   )
 }
 
@@ -62,14 +60,9 @@ function MultipleChoiceActivityCard({ activity }: ActivityRendererProps) {
   }
 
   return (
-    <RendererCard
-      eyebrow="Multiple choice"
-      title={activity.prompt}
-      tone="bg-secondary/10"
-    >
-      <p>Choices: {activity.content.choices.length}</p>
-      <p>Correct answers: {activity.content.correctChoiceIds.length}</p>
-    </RendererCard>
+    <MultipleChoiceActivity
+      activity={activity as Activity & { content: MultipleChoiceContent }}
+    />
   )
 }
 
@@ -79,14 +72,9 @@ function NumericInputActivityCard({ activity }: ActivityRendererProps) {
   }
 
   return (
-    <RendererCard
-      eyebrow="Numeric input"
-      title={activity.prompt}
-      tone="bg-card"
-    >
-      <p>Accepted answers: {activity.content.acceptedAnswers.join(', ')}</p>
-      <p>Difficulty: {activity.difficulty}</p>
-    </RendererCard>
+    <NumericInputActivity
+      activity={activity as Activity & { content: NumericInputContent }}
+    />
   )
 }
 

@@ -82,3 +82,39 @@ Current state
 - The repo now has the next foundation layer needed for richer onboarding, map flow, and lesson mechanics.
 - PR #29 contains issues #20 through #28.
 - progress.txt should be appended before future PRs so session memory stays current.
+
+2026-03-25 mechanics batch
+
+Completed work
+- Issues #31 through #35 were created for the next interaction and evaluation batch.
+- The full MIP-015 through MIP-019 mechanic batch was implemented on one branch with one main commit per issue.
+
+What was added
+- A real equation-builder mechanic with token placement into equation slots.
+- A real object-manipulation mechanic for building groups from visual objects.
+- Shared forgiving pickup-and-drop behavior used across the two core mechanics.
+- Support-only multiple-choice and numeric-input activity components.
+- A centralized activity evaluation module for exact-match, set-match, choice-match, and numeric-match rules.
+
+Important file landmarks
+- src/components/lesson/EquationBuilderActivity.tsx contains the first core symbolic mechanic.
+- src/components/lesson/ObjectManipulationActivity.tsx contains the first concrete grouping mechanic.
+- src/components/lesson/useForgivingPlacement.ts contains the shared correction-friendly pickup-and-drop behavior.
+- src/components/lesson/MultipleChoiceActivity.tsx and src/components/lesson/NumericInputActivity.tsx hold the support formats.
+- src/lib/evaluation/evaluate-activity.ts is the new centralized evaluation boundary.
+
+Useful commands
+- pnpm lint
+- pnpm test:unit
+- pnpm test
+
+Learnings from the batch
+- The content schema was detailed enough to support real mechanics without inventing a second activity definition layer.
+- Shared forgiving interaction behavior is easier to maintain when it is treated as a mechanic boundary, not a route concern.
+- Centralizing evaluation after the mechanics exist keeps interaction components simpler and makes future hint, retry, and mastery rules easier to layer on.
+- Support formats are safer to keep in check when their UI explicitly frames them as secondary to the core mechanics.
+
+Current state
+- The lesson runtime now has real playable mechanic components instead of placeholders.
+- Evaluation is centralized and ready for the next feedback and progression rules.
+- The next natural batch starts at hint, retry, explanation, mastery, unlocks, and child progression UI.
