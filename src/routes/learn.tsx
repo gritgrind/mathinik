@@ -389,9 +389,9 @@ function LearnRoute() {
                 ? `Next recommended lesson: ${nextRecommendedLesson.title}`
                 : 'The first progression node will appear once a learner profile is active.'}
             </p>
-            <button className={buttonVariants({ size: 'lg' })} type="button">
+            <a className={buttonVariants({ size: 'lg' })} href="/learn/map">
               Open world map
-            </button>
+            </a>
           </CardContent>
         </Card>
       </section>
