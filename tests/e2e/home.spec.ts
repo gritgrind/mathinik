@@ -20,7 +20,7 @@ test('home shell and navigation render', async ({ page }) => {
   await header.getByRole('link', { name: 'Parents' }).click()
   await expect(
     page.getByRole('heading', {
-      name: 'Local setup and progress summary will live here.',
+      name: 'Create a child profile right on this device.',
     })
   ).toBeVisible()
 })

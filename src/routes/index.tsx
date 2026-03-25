@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { getBundledContentRepository } from '~/lib/content/repository'
+import { normalizeContentPack } from '~/lib/models/app-models'
 import { heroPillars } from '~/lib/site-shell'
 
 export const Route = createFileRoute('/')({
@@ -8,6 +10,11 @@ export const Route = createFileRoute('/')({
 })
 
 function HomeRoute() {
+  const contentRepository = getBundledContentRepository()
+  const contentSummary = contentRepository.getSummary()
+  const contentModels = normalizeContentPack(contentRepository.pack)
+  const firstLesson = contentModels.lessons[0]
+
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 md:px-6 md:py-12">
       <section className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(21rem,0.9fr)]">
@@ -130,6 +137,35 @@ function HomeRoute() {
               Tooling, formatting, and tests are already attached to the shell,
               which keeps the branch verifiable as new systems are added.
             </p>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)]">
+        <Card className="border-border/60 bg-secondary text-secondary-foreground shadow-xl shadow-secondary/15">
+          <CardHeader>
+            <CardTitle className="text-xl font-black tracking-tight">
+              Example content pack is live in the shell
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-6 text-secondary-foreground/85">
+            <p>{contentSummary.title}</p>
+            <p>Version {contentSummary.version}</p>
+            <p>First lesson: {firstLesson?.title}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/60 bg-card/90 shadow-lg shadow-primary/5">
+          <CardHeader>
+            <CardTitle className="text-xl font-black tracking-tight">
+              Content repository baseline
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 text-sm leading-6 text-muted-foreground md:grid-cols-4">
+            <p>{contentSummary.gradeCount} grade loaded</p>
+            <p>{contentSummary.skillCount} skill indexed</p>
+            <p>{contentSummary.lessonCount} lesson ready</p>
+            <p>{contentSummary.activityCount} activities validated</p>
           </CardContent>
         </Card>
       </section>
