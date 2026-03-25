@@ -1,0 +1,9 @@
+node_modules/
+.output/
+.tanstack/
+.wrangler/
+.pnpm-store/
+test-results/
+playwright-report/
+coverage/
+dist/
