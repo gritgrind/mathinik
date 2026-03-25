@@ -45,6 +45,12 @@ export type LessonSessionStateInput = {
   completed: boolean
 }
 
+export type ProfileAvatarInput = {
+  profileId: string
+  mascotStyle: string
+  color: string
+}
+
 export function createEmptyStateStore(
   options: { contentVersion?: string; deviceId?: string; now?: string } = {}
 ): StateStore {
@@ -256,6 +262,32 @@ export function updateLessonSessionStateInStateStore(
     activeProfileId: input.profileId,
     updatedAt: now,
     profiles: nextProfiles,
+  })
+}
+
+export function updateProfileAvatarInStateStore(
+  state: StateStore,
+  input: ProfileAvatarInput,
+  now = new Date().toISOString()
+): StateStore {
+  return parseStateStore({
+    ...state,
+    activeProfileId: input.profileId,
+    updatedAt: now,
+    profiles: state.profiles.map((profile) => {
+      if (profile.id !== input.profileId) {
+        return profile
+      }
+
+      return {
+        ...profile,
+        lastActiveAt: now,
+        avatar: {
+          mascotStyle: input.mascotStyle,
+          color: input.color,
+        },
+      }
+    }),
   })
 }
 

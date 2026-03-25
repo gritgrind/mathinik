@@ -3,6 +3,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { ActivityRenderer } from '~/components/lesson/ActivityRenderer'
 import { buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader } from '~/components/ui/card'
+import {
+  getNextRecommendedLesson,
+  getResumeLesson,
+} from '~/lib/child-experience'
 import { getBundledContentRepository } from '~/lib/content/repository'
 import {
   type ActivityAttemptRecord,
@@ -104,6 +108,11 @@ function LearnRoute() {
       ? contentRepository.getActivity(session.lessonId, currentActivity.id)
       : null
   const lessonDefinition = contentRepository.getLesson(lesson.id)
+  const resumeLesson = getResumeLesson(activeProfile, contentModels.lessons)
+  const nextRecommendedLesson = getNextRecommendedLesson(
+    activeProfile,
+    contentModels.lessons
+  )
   const lessonActivityDefinitions = useMemo(
     () =>
       (lessonDefinition?.activities ?? [])
@@ -271,18 +280,44 @@ function LearnRoute() {
         <Card className="border-border/60 bg-card/90 shadow-xl shadow-primary/10">
           <CardHeader>
             <h1 className="text-3xl font-black tracking-tight md:text-4xl">
-              Route space for the child-facing lesson journey.
+              {activeProfile
+                ? `Welcome back, ${activeProfile.displayName}.`
+                : 'Route space for the child-facing lesson journey.'}
             </h1>
           </CardHeader>
           <CardContent className="space-y-4 text-sm leading-6 text-muted-foreground md:text-base">
             <p>
-              This page marks the future learner path where resume cards,
-              activity rendering, and lesson progression will live.
+              The child home now acts as a resume-first hub with a clear path
+              back into lessons and progression.
             </p>
             <p>
-              For now it proves the shell can separate learner-facing flow from
-              support surfaces while keeping the app mobile-friendly.
+              Keep sessions short, show the next target clearly, and leave the
+              deeper progression rules to the dedicated engines underneath.
             </p>
+            {activeProfile ? (
+              <div className="rounded-[1.75rem] border border-primary/20 bg-primary/10 p-4 text-foreground">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                  Active learner
+                </p>
+                <div className="mt-3 flex items-center gap-4">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary/15 text-2xl">
+                    {activeProfile.avatarLabel.includes('owl')
+                      ? 'O'
+                      : activeProfile.avatarLabel.includes('otter')
+                        ? 'T'
+                        : 'F'}
+                  </div>
+                  <div>
+                    <p className="text-xl font-black tracking-tight">
+                      {activeProfile.displayName}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Mascot style: {activeProfile.avatarLabel}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
 
@@ -303,6 +338,71 @@ function LearnRoute() {
                     : 'Create a profile in Parents first')}
               </p>
             </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <Card className="border-border/60 bg-primary text-primary-foreground shadow-xl shadow-primary/20">
+          <CardHeader>
+            <h2 className="text-2xl font-black tracking-tight">Resume card</h2>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm leading-6 text-primary-foreground/85">
+            {resumeLesson ? (
+              <>
+                <p>Pick up where you left off in {resumeLesson.title}.</p>
+                <p>
+                  Resume activity{' '}
+                  {activeProfile?.resumableActivityId ?? 'next step'}
+                </p>
+                <button
+                  className={buttonVariants({
+                    size: 'lg',
+                    variant: 'secondary',
+                  })}
+                  onClick={handleStartLesson}
+                  type="button"
+                >
+                  Resume lesson
+                </button>
+              </>
+            ) : (
+              <>
+                <p>
+                  No resumable lesson yet. Start a fresh lesson to build
+                  momentum.
+                </p>
+                <button
+                  className={buttonVariants({
+                    size: 'lg',
+                    variant: 'secondary',
+                  })}
+                  onClick={handleStartLesson}
+                  type="button"
+                  disabled={!activeProfile}
+                >
+                  Start first lesson
+                </button>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/60 bg-card/90 shadow-lg shadow-primary/5">
+          <CardHeader>
+            <h2 className="text-2xl font-black tracking-tight">
+              Progression entry
+            </h2>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm leading-6 text-muted-foreground">
+            <p>
+              {nextRecommendedLesson
+                ? `Next recommended lesson: ${nextRecommendedLesson.title}`
+                : 'The first progression node will appear once a learner profile is active.'}
+            </p>
+            <a className={buttonVariants({ size: 'lg' })} href="/learn/map">
+              Open world map
+            </a>
           </CardContent>
         </Card>
       </section>
@@ -372,6 +472,17 @@ function LearnRoute() {
                         ? 'Finish lesson'
                         : 'Advance to next activity'}
                   </button>
+                  {session.status === 'completed' ? (
+                    <a
+                      className={buttonVariants({
+                        size: 'lg',
+                        variant: 'secondary',
+                      })}
+                      href="/learn/completed"
+                    >
+                      See lesson wrap-up
+                    </a>
+                  ) : null}
                   <button
                     className={buttonVariants({
                       size: 'lg',

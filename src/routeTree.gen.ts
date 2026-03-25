@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ParentsRouteImport } from './routes/parents'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LearnMapRouteImport } from './routes/learn.map'
+import { Route as LearnCompletedRouteImport } from './routes/learn.completed'
 
 const ParentsRoute = ParentsRouteImport.update({
   id: '/parents',
@@ -28,34 +30,56 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LearnMapRoute = LearnMapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnCompletedRoute = LearnCompletedRouteImport.update({
+  id: '/completed',
+  path: '/completed',
+  getParentRoute: () => LearnRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/learn': typeof LearnRoute
+  '/learn': typeof LearnRouteWithChildren
   '/parents': typeof ParentsRoute
+  '/learn/completed': typeof LearnCompletedRoute
+  '/learn/map': typeof LearnMapRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/learn': typeof LearnRoute
+  '/learn': typeof LearnRouteWithChildren
   '/parents': typeof ParentsRoute
+  '/learn/completed': typeof LearnCompletedRoute
+  '/learn/map': typeof LearnMapRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/learn': typeof LearnRoute
+  '/learn': typeof LearnRouteWithChildren
   '/parents': typeof ParentsRoute
+  '/learn/completed': typeof LearnCompletedRoute
+  '/learn/map': typeof LearnMapRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/learn' | '/parents'
+  fullPaths: '/' | '/learn' | '/parents' | '/learn/completed' | '/learn/map'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/learn' | '/parents'
-  id: '__root__' | '/' | '/learn' | '/parents'
+  to: '/' | '/learn' | '/parents' | '/learn/completed' | '/learn/map'
+  id:
+    | '__root__'
+    | '/'
+    | '/learn'
+    | '/parents'
+    | '/learn/completed'
+    | '/learn/map'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  LearnRoute: typeof LearnRoute
+  LearnRoute: typeof LearnRouteWithChildren
   ParentsRoute: typeof ParentsRoute
 }
 
@@ -82,12 +106,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/learn/map': {
+      id: '/learn/map'
+      path: '/map'
+      fullPath: '/learn/map'
+      preLoaderRoute: typeof LearnMapRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/completed': {
+      id: '/learn/completed'
+      path: '/completed'
+      fullPath: '/learn/completed'
+      preLoaderRoute: typeof LearnCompletedRouteImport
+      parentRoute: typeof LearnRoute
+    }
   }
 }
 
+interface LearnRouteChildren {
+  LearnCompletedRoute: typeof LearnCompletedRoute
+  LearnMapRoute: typeof LearnMapRoute
+}
+
+const LearnRouteChildren: LearnRouteChildren = {
+  LearnCompletedRoute: LearnCompletedRoute,
+  LearnMapRoute: LearnMapRoute,
+}
+
+const LearnRouteWithChildren = LearnRoute._addFileChildren(LearnRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  LearnRoute: LearnRoute,
+  LearnRoute: LearnRouteWithChildren,
   ParentsRoute: ParentsRoute,
 }
 export const routeTree = rootRouteImport
