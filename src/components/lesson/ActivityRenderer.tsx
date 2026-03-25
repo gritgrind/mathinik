@@ -1,9 +1,13 @@
 import { EquationBuilderActivity } from '~/components/lesson/EquationBuilderActivity'
+import { MultipleChoiceActivity } from '~/components/lesson/MultipleChoiceActivity'
+import { NumericInputActivity } from '~/components/lesson/NumericInputActivity'
 import { ObjectManipulationActivity } from '~/components/lesson/ObjectManipulationActivity'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import type {
   Activity,
   EquationBuilderContent,
+  MultipleChoiceContent,
+  NumericInputContent,
   ObjectManipulationContent,
 } from '~/lib/content/types'
 
@@ -56,14 +60,9 @@ function MultipleChoiceActivityCard({ activity }: ActivityRendererProps) {
   }
 
   return (
-    <RendererCard
-      eyebrow="Multiple choice"
-      title={activity.prompt}
-      tone="bg-secondary/10"
-    >
-      <p>Choices: {activity.content.choices.length}</p>
-      <p>Correct answers: {activity.content.correctChoiceIds.length}</p>
-    </RendererCard>
+    <MultipleChoiceActivity
+      activity={activity as Activity & { content: MultipleChoiceContent }}
+    />
   )
 }
 
@@ -73,14 +72,9 @@ function NumericInputActivityCard({ activity }: ActivityRendererProps) {
   }
 
   return (
-    <RendererCard
-      eyebrow="Numeric input"
-      title={activity.prompt}
-      tone="bg-card"
-    >
-      <p>Accepted answers: {activity.content.acceptedAnswers.join(', ')}</p>
-      <p>Difficulty: {activity.difficulty}</p>
-    </RendererCard>
+    <NumericInputActivity
+      activity={activity as Activity & { content: NumericInputContent }}
+    />
   )
 }
 
