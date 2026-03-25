@@ -5,6 +5,7 @@ import type {
   EquationBuilderContent,
   Token,
 } from '~/lib/content/types'
+import { evaluateActivity } from '~/lib/evaluation/evaluate-activity'
 import { cn } from '~/lib/utils'
 import { useForgivingPlacement } from './useForgivingPlacement'
 
@@ -28,12 +29,11 @@ export function EquationBuilderActivity({
     [activity.content.palette]
   )
 
-  const isSolved = activity.content.validAnswers.some((answer) => {
-    const left = slotTokenIds.slice(0, activity.content.leftSide.length)
-    const right = slotTokenIds.slice(activity.content.leftSide.length)
-
-    return arraysMatch(left, answer.left) && arraysMatch(right, answer.right)
-  })
+  const isSolved = evaluateActivity(activity, {
+    kind: 'equation-builder',
+    left: slotTokenIds.slice(0, activity.content.leftSide.length),
+    right: slotTokenIds.slice(activity.content.leftSide.length),
+  }).correct
 
   function placeToken(slotIndex: number, tokenId: string) {
     setSlotTokenIds((currentSlots) => {
@@ -205,11 +205,4 @@ function SlotRow({
       </div>
     </div>
   )
-}
-
-function arraysMatch(
-  current: Array<string | null>,
-  expected: string[]
-): boolean {
-  return current.every((value, index) => value === expected[index])
 }

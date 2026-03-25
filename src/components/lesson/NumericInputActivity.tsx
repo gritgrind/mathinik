@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import type { Activity, NumericInputContent } from '~/lib/content/types'
+import { evaluateActivity } from '~/lib/evaluation/evaluate-activity'
 
 type NumericInputActivityProps = {
   activity: Activity & { content: NumericInputContent }
@@ -9,11 +10,12 @@ type NumericInputActivityProps = {
 export function NumericInputActivity({ activity }: NumericInputActivityProps) {
   const [value, setValue] = useState('')
   const [submitted, setSubmitted] = useState(false)
-  const acceptedAnswers = useMemo(
-    () => activity.content.acceptedAnswers.map((answer) => String(answer)),
-    [activity.content.acceptedAnswers]
-  )
-  const isCorrect = submitted && acceptedAnswers.includes(value.trim())
+  const isCorrect =
+    submitted &&
+    evaluateActivity(activity, {
+      kind: 'numeric-input',
+      value,
+    }).correct
 
   return (
     <Card className="border-border/60 bg-card">

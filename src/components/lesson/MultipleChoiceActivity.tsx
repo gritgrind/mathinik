@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import type { Activity, MultipleChoiceContent } from '~/lib/content/types'
+import { evaluateActivity } from '~/lib/evaluation/evaluate-activity'
 import { cn } from '~/lib/utils'
 
 type MultipleChoiceActivityProps = {
@@ -13,7 +14,10 @@ export function MultipleChoiceActivity({
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null)
   const isCorrect =
     selectedChoiceId !== null &&
-    activity.content.correctChoiceIds.includes(selectedChoiceId)
+    evaluateActivity(activity, {
+      kind: 'multiple-choice',
+      selectedChoiceIds: [selectedChoiceId],
+    }).correct
 
   return (
     <Card className="border-border/60 bg-secondary/10">

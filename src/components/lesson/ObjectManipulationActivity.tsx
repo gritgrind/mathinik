@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import type { Activity, ObjectManipulationContent } from '~/lib/content/types'
+import { evaluateActivity } from '~/lib/evaluation/evaluate-activity'
 import { cn } from '~/lib/utils'
 import { useForgivingPlacement } from './useForgivingPlacement'
 
@@ -29,24 +30,13 @@ export function ObjectManipulationActivity({
   )
 
   const groups = useMemo(() => getGroups(assignments), [assignments])
-  const isSolved = activity.content.validAnswers.some((answer) => {
-    const sortedGroupCounts = [groups['group-a'], groups['group-b']]
-      .filter((count) => count > 0)
-      .sort((left, right) => right - left)
-
-    if (answer.expectedGroups) {
-      return arraysMatch(
-        sortedGroupCounts,
-        [...answer.expectedGroups].sort((left, right) => right - left)
-      )
-    }
-
-    if (answer.expectedCount !== undefined) {
-      return groups['group-a'] + groups['group-b'] === answer.expectedCount
-    }
-
-    return false
-  })
+  const isSolved = evaluateActivity(activity, {
+    kind: 'object-manipulation',
+    groupCounts: [groups['group-a'], groups['group-b']].filter(
+      (count) => count > 0
+    ),
+    totalCount: groups['group-a'] + groups['group-b'],
+  }).correct
 
   return (
     <Card className="border-border/60 bg-accent/45">
@@ -226,12 +216,5 @@ function getGroups(assignments: GroupId[]) {
       'group-a': 0,
       'group-b': 0,
     }
-  )
-}
-
-function arraysMatch(current: number[], expected: number[]) {
-  return (
-    current.length === expected.length &&
-    current.every((value, index) => value === expected[index])
   )
 }
