@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Card, CardContent, CardHeader } from '~/components/ui/card'
+import { normalizeStateStore } from '~/lib/models/app-models'
 import { loadExampleStateStore } from '~/lib/state/store'
 
 export const Route = createFileRoute('/parents')({
@@ -7,8 +8,8 @@ export const Route = createFileRoute('/parents')({
 })
 
 function ParentsRoute() {
-  const exampleState = loadExampleStateStore()
-  const exampleProfile = exampleState.profiles[0]
+  const stateModels = normalizeStateStore(loadExampleStateStore())
+  const exampleProfile = stateModels.activeProfile
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 md:px-6 md:py-12">
@@ -52,10 +53,7 @@ function ParentsRoute() {
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-6 text-secondary-foreground/85">
             <p>Active profile: {exampleProfile?.displayName}</p>
-            <p>
-              Unlocked lessons:{' '}
-              {exampleProfile?.progress.unlockedLessonIds.length}
-            </p>
+            <p>Unlocked lessons: {exampleProfile?.unlockedLessonCount}</p>
           </CardContent>
         </Card>
 
@@ -66,11 +64,8 @@ function ParentsRoute() {
             </h2>
           </CardHeader>
           <CardContent className="grid gap-3 text-sm leading-6 text-muted-foreground md:grid-cols-3">
-            <p>{exampleState.profiles.length} local profile loaded</p>
-            <p>
-              {exampleProfile?.progress.completedLessonIds.length} completed
-              lesson
-            </p>
+            <p>{stateModels.profiles.length} local profile loaded</p>
+            <p>{exampleProfile?.completedLessonCount} completed lesson</p>
             <p>Resume state ready for future onboarding and learner flow</p>
           </CardContent>
         </Card>

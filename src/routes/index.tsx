@@ -2,6 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { getBundledContentRepository } from '~/lib/content/repository'
+import { normalizeContentPack } from '~/lib/models/app-models'
 import { heroPillars } from '~/lib/site-shell'
 
 export const Route = createFileRoute('/')({
@@ -9,7 +10,10 @@ export const Route = createFileRoute('/')({
 })
 
 function HomeRoute() {
-  const contentSummary = getBundledContentRepository().getSummary()
+  const contentRepository = getBundledContentRepository()
+  const contentSummary = contentRepository.getSummary()
+  const contentModels = normalizeContentPack(contentRepository.pack)
+  const firstLesson = contentModels.lessons[0]
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 md:px-6 md:py-12">
@@ -147,6 +151,7 @@ function HomeRoute() {
           <CardContent className="space-y-3 text-sm leading-6 text-secondary-foreground/85">
             <p>{contentSummary.title}</p>
             <p>Version {contentSummary.version}</p>
+            <p>First lesson: {firstLesson?.title}</p>
           </CardContent>
         </Card>
 
