@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { ContentPackStatus } from '~/components/ContentPackStatus'
 import { buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { getBundledContentRepository } from '~/lib/content/repository'
@@ -152,6 +153,7 @@ function HomeRoute() {
             <p>{contentSummary.title}</p>
             <p>Version {contentSummary.version}</p>
             <p>First lesson: {firstLesson?.title}</p>
+            <ContentPackStatus currentVersion={contentSummary.version} />
           </CardContent>
         </Card>
 
