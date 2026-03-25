@@ -1,0 +1,46 @@
+2026-03-25 session log
+
+Started from a docs-only repo and turned it into the first working app foundation.
+
+Completed work
+- Issues #8, #9, #10, and #11 were finished and merged in PR #17.
+- Issue #12 was finished and merged in PR #18.
+
+What was added
+- TanStack Start app shell with TypeScript.
+- Root layout plus home, learner, and parent routes.
+- Tailwind CSS v4 baseline and selective shadcn/ui primitives.
+- Biome linting and formatting setup.
+- Vitest, Testing Library, and Playwright smoke coverage.
+- Cloudflare Pages deployment baseline with Wrangler.
+- Pages advanced-mode packaging through scripts/build-pages.mjs.
+
+Important file landmarks
+- package.json holds the main scripts.
+- src/routes contains the current route shell.
+- src/components/ui contains the shared support primitives.
+- tests/e2e/home.spec.ts is the current browser smoke test.
+- wrangler.jsonc defines the Cloudflare Pages baseline.
+- scripts/build-pages.mjs assembles dist/pages for Pages deploys.
+
+Useful commands
+- pnpm dev
+- pnpm build
+- pnpm build:pages
+- pnpm preview
+- pnpm pages:dev
+- pnpm deploy
+- pnpm lint
+- pnpm test
+
+Learnings from the session
+- The repo workflow is issue-driven, but it was faster to build the first batch together and then split the deployment baseline into a follow-up branch.
+- TanStack Start builds both client and server output; Cloudflare Pages needed an explicit advanced-mode bundle to serve app routes and hashed assets together.
+- A plain SPA redirect was not enough for the current setup because the app relies on TanStack Start server output, not only static index fallback.
+- Wrangler Pages local verification is useful for catching route behavior that does not show up in plain Vite preview.
+- Merging the deployment PR after the foundation PR caused conflicts in README, package.json, and pnpm-lock.yaml; resolving them mostly meant keeping the new Pages scripts and Wrangler dependency on top of the merged foundation.
+
+Current state
+- main includes the app foundation and Cloudflare Pages baseline.
+- PR #17 and PR #18 are merged.
+- The next session can use this file as a short memory of what exists and why.
