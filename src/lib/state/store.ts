@@ -1,5 +1,10 @@
 import exampleStateStoreJson from '../../../state/examples/local-state.example.json'
-import type { StateStore, StateStoreLoadResult } from './types'
+import type {
+  ChildProfile,
+  LearnerProgress,
+  StateStore,
+  StateStoreLoadResult,
+} from './types'
 import {
   parseStateStore,
   StateStoreValidationError,
@@ -14,6 +19,11 @@ export type StatePersistence = {
   loadStateStore: () => StateStoreLoadResult
   saveStateStore: (state: StateStore) => StateStore
   clearStateStore: () => void
+}
+
+export type CreateProfileInput = {
+  displayName: string
+  gradeStart: 1 | 2 | 3
 }
 
 export function createEmptyStateStore(
@@ -32,6 +42,64 @@ export function createEmptyStateStore(
 
 export function loadExampleStateStore(): StateStore {
   return parseStateStore(exampleStateStoreJson)
+}
+
+export function createEmptyProgress(): LearnerProgress {
+  return {
+    unlockedLessonIds: [],
+    completedLessonIds: [],
+    lessonProgress: {},
+    skillMastery: {},
+    rewards: {
+      totalStars: 0,
+      badgeIds: [],
+      mapNodeIds: [],
+    },
+    resume: {
+      resumable: false,
+    },
+  }
+}
+
+export function createChildProfile(
+  input: CreateProfileInput,
+  options: { now?: string } = {}
+): ChildProfile {
+  const trimmedName = input.displayName.trim()
+
+  if (!trimmedName) {
+    throw new Error('Display name is required')
+  }
+
+  const createdAt = options.now ?? new Date().toISOString()
+
+  return {
+    id: buildProfileId(trimmedName, createdAt),
+    displayName: trimmedName,
+    gradeStart: input.gradeStart,
+    createdAt,
+    lastActiveAt: createdAt,
+    progress: createEmptyProgress(),
+  }
+}
+
+export function addProfileToStateStore(
+  state: StateStore,
+  profile: ChildProfile,
+  options: { now?: string } = {}
+): StateStore {
+  if (
+    state.profiles.some((existingProfile) => existingProfile.id === profile.id)
+  ) {
+    throw new Error(`Profile ${profile.id} already exists`)
+  }
+
+  return parseStateStore({
+    ...state,
+    activeProfileId: profile.id,
+    updatedAt: options.now ?? new Date().toISOString(),
+    profiles: [...state.profiles, profile],
+  })
 }
 
 export function createStatePersistence(
@@ -114,4 +182,15 @@ function toStatePersistenceError(error: unknown): Error {
   }
 
   return new Error('Unknown state persistence failure')
+}
+
+function buildProfileId(displayName: string, createdAt: string): string {
+  const slug = displayName
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
+  const timeSuffix = createdAt.replace(/[^0-9]/g, '').slice(-8)
+  return `child-${slug || 'learner'}-${timeSuffix}`
 }

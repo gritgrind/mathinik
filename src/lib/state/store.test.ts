@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
+  addProfileToStateStore,
+  createChildProfile,
   createEmptyStateStore,
   createStatePersistence,
   loadExampleStateStore,
@@ -77,5 +79,28 @@ describe('state persistence', () => {
 
     expect(savedState.updatedAt).toBe('2026-03-25T12:34:56.000Z')
     expect(persistence.loadStateStore().source).toBe('storage')
+  })
+
+  it('creates a local profile and makes it active in state', () => {
+    const state = createEmptyStateStore()
+    const profile = createChildProfile(
+      {
+        displayName: 'Milo',
+        gradeStart: 2,
+      },
+      {
+        now: '2026-03-25T09:15:00.000Z',
+      }
+    )
+
+    const nextState = addProfileToStateStore(state, profile, {
+      now: '2026-03-25T09:15:00.000Z',
+    })
+
+    expect(nextState.activeProfileId).toBe(profile.id)
+    expect(nextState.profiles[0]).toMatchObject({
+      displayName: 'Milo',
+      gradeStart: 2,
+    })
   })
 })
