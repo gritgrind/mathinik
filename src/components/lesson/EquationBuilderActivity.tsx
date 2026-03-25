@@ -6,6 +6,7 @@ import type {
   Token,
 } from '~/lib/content/types'
 import { cn } from '~/lib/utils'
+import { useForgivingPlacement } from './useForgivingPlacement'
 
 type EquationBuilderActivityProps = {
   activity: Activity & { content: EquationBuilderContent }
@@ -16,10 +17,11 @@ export function EquationBuilderActivity({
 }: EquationBuilderActivityProps) {
   const slotCount =
     activity.content.leftSide.length + activity.content.rightSide.length
-  const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null)
   const [slotTokenIds, setSlotTokenIds] = useState<Array<string | null>>(
     Array.from({ length: slotCount }, () => null)
   )
+  const { activeItemId, clearPlacement, helperText, pickUpItem } =
+    useForgivingPlacement<string>()
 
   const tokensById = useMemo(
     () => new Map(activity.content.palette.map((token) => [token.id, token])),
@@ -41,7 +43,7 @@ export function EquationBuilderActivity({
       nextSlots[slotIndex] = tokenId
       return nextSlots
     })
-    setSelectedTokenId(null)
+    clearPlacement()
   }
 
   function clearSlot(slotIndex: number) {
@@ -64,10 +66,7 @@ export function EquationBuilderActivity({
       </CardHeader>
       <CardContent className="space-y-5 text-sm leading-6 text-muted-foreground">
         <div className="space-y-2">
-          <p>
-            Pick a token, then tap a slot to place it. Tap a placed token to
-            clear it.
-          </p>
+          <p>{helperText}</p>
           <p>
             {isSolved
               ? 'Equation matches the content answer.'
@@ -80,7 +79,7 @@ export function EquationBuilderActivity({
             <SlotRow
               label="Left side"
               offset={0}
-              selectedTokenId={selectedTokenId}
+              selectedTokenId={activeItemId}
               slotTokenIds={slotTokenIds.slice(
                 0,
                 activity.content.leftSide.length
@@ -95,7 +94,7 @@ export function EquationBuilderActivity({
             <SlotRow
               label="Right side"
               offset={activity.content.leftSide.length}
-              selectedTokenId={selectedTokenId}
+              selectedTokenId={activeItemId}
               slotTokenIds={slotTokenIds.slice(
                 activity.content.leftSide.length
               )}
@@ -115,7 +114,7 @@ export function EquationBuilderActivity({
                   <button
                     className={cn(
                       'min-h-12 rounded-2xl border px-4 py-3 text-sm font-semibold transition',
-                      selectedTokenId === token.id
+                      activeItemId === token.id
                         ? 'border-primary bg-primary text-primary-foreground'
                         : 'border-border bg-background text-foreground',
                       isUsed && 'opacity-55'
@@ -123,14 +122,10 @@ export function EquationBuilderActivity({
                     data-token-id={token.id}
                     draggable
                     key={token.id}
-                    onClick={() =>
-                      setSelectedTokenId((current) =>
-                        current === token.id ? null : token.id
-                      )
-                    }
+                    onClick={() => pickUpItem(token.id)}
                     onDragStart={(event) => {
                       event.dataTransfer.setData('text/plain', token.id)
-                      setSelectedTokenId(token.id)
+                      pickUpItem(token.id)
                     }}
                     type="button"
                   >

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import type { Activity, ObjectManipulationContent } from '~/lib/content/types'
 import { cn } from '~/lib/utils'
+import { useForgivingPlacement } from './useForgivingPlacement'
 
 type GroupId = 'source' | 'group-a' | 'group-b'
 
@@ -19,6 +20,8 @@ export function ObjectManipulationActivity({
   const [assignments, setAssignments] = useState<GroupId[]>(
     Array.from({ length: totalObjects }, () => 'source')
   )
+  const { activeItemId, helperText, pickUpItem, placeIntoTarget } =
+    useForgivingPlacement<number>()
   const objectIds = useMemo(
     () =>
       Array.from({ length: totalObjects }, (_, index) => `apple-${index + 1}`),
@@ -58,10 +61,7 @@ export function ObjectManipulationActivity({
       <CardContent className="space-y-5 text-sm leading-6 text-muted-foreground">
         <div className="space-y-2">
           <p>{activity.content.task}</p>
-          <p>
-            Tap an apple to move it from the source into Group A, then Group B,
-            then back to the source.
-          </p>
+          <p>{helperText}</p>
           <p>
             {isSolved
               ? 'Groups match the content answer.'
@@ -70,16 +70,24 @@ export function ObjectManipulationActivity({
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <GroupPanel label="Source" count={groups.source} tone="bg-background">
+          <GroupPanel
+            count={groups.source}
+            label="Source"
+            onDrop={() =>
+              placeIntoTarget((itemIndex: number) =>
+                moveObject(itemIndex, 'source', setAssignments)
+              )
+            }
+            tone="bg-background"
+          >
             <div className="flex flex-wrap gap-3">
               {assignments.map((assignment, index) =>
                 assignment === 'source' ? (
                   <ObjectChip
+                    active={activeItemId === index}
                     key={`${objectIds[index]}-source`}
                     label={`Apple ${index + 1}`}
-                    onClick={() =>
-                      moveObject(index, assignments, setAssignments)
-                    }
+                    onClick={() => pickUpItem(index)}
                   />
                 ) : null
               )}
@@ -89,17 +97,21 @@ export function ObjectManipulationActivity({
           <GroupPanel
             label="Group A"
             count={groups['group-a']}
+            onDrop={() =>
+              placeIntoTarget((itemIndex: number) =>
+                moveObject(itemIndex, 'group-a', setAssignments)
+              )
+            }
             tone="bg-primary/10"
           >
             <div className="flex flex-wrap gap-3">
               {assignments.map((assignment, index) =>
                 assignment === 'group-a' ? (
                   <ObjectChip
+                    active={activeItemId === index}
                     key={`${objectIds[index]}-group-a`}
                     label={`Apple ${index + 1}`}
-                    onClick={() =>
-                      moveObject(index, assignments, setAssignments)
-                    }
+                    onClick={() => pickUpItem(index)}
                   />
                 ) : null
               )}
@@ -109,17 +121,21 @@ export function ObjectManipulationActivity({
           <GroupPanel
             label="Group B"
             count={groups['group-b']}
+            onDrop={() =>
+              placeIntoTarget((itemIndex: number) =>
+                moveObject(itemIndex, 'group-b', setAssignments)
+              )
+            }
             tone="bg-secondary/10"
           >
             <div className="flex flex-wrap gap-3">
               {assignments.map((assignment, index) =>
                 assignment === 'group-b' ? (
                   <ObjectChip
+                    active={activeItemId === index}
                     key={`${objectIds[index]}-group-b`}
                     label={`Apple ${index + 1}`}
-                    onClick={() =>
-                      moveObject(index, assignments, setAssignments)
-                    }
+                    onClick={() => pickUpItem(index)}
                   />
                 ) : null
               )}
@@ -135,15 +151,24 @@ function GroupPanel({
   children,
   count,
   label,
+  onDrop,
   tone,
 }: {
   children: React.ReactNode
   count: number
   label: string
+  onDrop: () => void
   tone: string
 }) {
   return (
-    <div className={cn('rounded-[1.75rem] border border-border/60 p-4', tone)}>
+    <button
+      className={cn(
+        'rounded-[1.75rem] border border-border/60 p-4 text-left transition',
+        tone
+      )}
+      onClick={onDrop}
+      type="button"
+    >
       <div className="mb-3 flex items-center justify-between">
         <p className="text-sm font-black uppercase tracking-[0.18em] text-primary">
           {label}
@@ -151,20 +176,25 @@ function GroupPanel({
         <p className="text-sm font-semibold text-foreground">{count}</p>
       </div>
       {children}
-    </div>
+    </button>
   )
 }
 
 function ObjectChip({
+  active,
   label,
   onClick,
 }: {
+  active: boolean
   label: string
   onClick: () => void
 }) {
   return (
     <button
-      className="min-h-12 rounded-full border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition hover:-translate-y-0.5 hover:border-primary/60"
+      className={cn(
+        'min-h-12 rounded-full border px-4 py-3 text-sm font-semibold text-foreground transition hover:-translate-y-0.5 hover:border-primary/60',
+        active ? 'border-primary bg-primary/10' : 'border-border bg-card'
+      )}
       onClick={onClick}
       type="button"
     >
@@ -175,20 +205,12 @@ function ObjectChip({
 
 function moveObject(
   index: number,
-  assignments: GroupId[],
+  targetGroup: GroupId,
   setAssignments: React.Dispatch<React.SetStateAction<GroupId[]>>
 ) {
-  const currentGroup = assignments[index]
-  const nextGroup =
-    currentGroup === 'source'
-      ? 'group-a'
-      : currentGroup === 'group-a'
-        ? 'group-b'
-        : 'source'
-
   setAssignments((currentAssignments) => {
     const nextAssignments = [...currentAssignments]
-    nextAssignments[index] = nextGroup
+    nextAssignments[index] = targetGroup
     return nextAssignments
   })
 }

@@ -54,4 +54,25 @@ describe('EquationBuilderActivity', () => {
       screen.getByText('Equation matches the content answer.')
     ).toBeVisible()
   })
+
+  it('allows a wrong token to be cleared and corrected', async () => {
+    if (!activity || activity.content.kind !== 'equation-builder') {
+      throw new Error('Expected equation-builder activity')
+    }
+
+    const user = userEvent.setup()
+    render(
+      <EquationBuilderActivity
+        activity={activity as Activity & { content: EquationBuilderContent }}
+      />
+    )
+
+    await user.click(screen.getAllByRole('button', { name: '1' })[1])
+    await user.click(screen.getAllByRole('button', { name: 'Drop here' })[0])
+    await user.click(screen.getAllByRole('button', { name: '1' })[0])
+    await user.click(screen.getAllByRole('button', { name: 'Drop here' })[0])
+    await user.click(screen.getAllByRole('button', { name: '1' })[1])
+
+    expect(screen.getByText('Build the matching equation.')).toBeVisible()
+  })
 })

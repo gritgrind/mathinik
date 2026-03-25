@@ -23,11 +23,21 @@ describe('ObjectManipulationActivity', () => {
       />
     )
 
-    const sourceApples = screen.getAllByRole('button', { name: /Apple/ })
-    await user.click(sourceApples[0])
-    await user.click(sourceApples[1])
-    await user.click(sourceApples[2])
+    const sourcePanel = screen.getByRole('button', { name: /Source/ })
+    const groupAPanel = screen.getByRole('button', { name: /Group A/ })
+    const groupBPanel = screen.getByRole('button', { name: /Group B/ })
+
+    await user.click(screen.getByRole('button', { name: 'Apple 1' }))
+    await user.click(groupAPanel)
+    await user.click(screen.getByRole('button', { name: 'Apple 2' }))
+    await user.click(groupAPanel)
     await user.click(screen.getByRole('button', { name: 'Apple 3' }))
+    await user.click(groupBPanel)
+
+    await user.click(screen.getByRole('button', { name: 'Apple 3' }))
+    await user.click(sourcePanel)
+    await user.click(screen.getByRole('button', { name: 'Apple 3' }))
+    await user.click(groupBPanel)
 
     expect(screen.getByText('Groups match the content answer.')).toBeVisible()
   })
