@@ -25,6 +25,10 @@ import {
   calculateLessonCompletion,
 } from '~/lib/progression/lesson-completion'
 import {
+  applySkillMasteryToStateStore,
+  calculateSkillMasteryUpdate,
+} from '~/lib/progression/mastery'
+import {
   createBrowserStatePersistence,
   createEmptyStateStore,
   updateLessonSessionStateInStateStore,
@@ -180,10 +184,8 @@ function LearnRoute() {
 
     const completedState =
       nextSession.status === 'completed'
-        ? applyLessonCompletionToStateStore(
-            nextState,
-            nextSession,
-            calculateLessonCompletion(
+        ? (() => {
+            const completionOutcome = calculateLessonCompletion(
               lessonActivityDefinitions,
               attemptsByActivityId,
               (localState.profiles.find(
@@ -195,7 +197,25 @@ function LearnRoute() {
                 | 3
                 | undefined) ?? 0
             )
-          )
+            const stateWithCompletion = applyLessonCompletionToStateStore(
+              nextState,
+              nextSession,
+              completionOutcome
+            )
+            const masteryUpdate = calculateSkillMasteryUpdate(
+              lesson,
+              completionOutcome,
+              localState.profiles.find(
+                (profile) => profile.id === activeProfile.id
+              )?.progress.skillMastery[lesson.skillId]?.value ?? 0
+            )
+
+            return applySkillMasteryToStateStore(
+              stateWithCompletion,
+              activeProfile.id,
+              masteryUpdate
+            )
+          })()
         : nextState
 
     setLocalState(persistence.saveStateStore(completedState))
@@ -389,6 +409,15 @@ function LearnRoute() {
             </p>
             <p>Completed activities: {summary?.completedActivities ?? 0}</p>
             <p>Earned stars: {lessonOutcome?.earnedStars ?? 0}</p>
+            <p>
+              Skill mastery:{' '}
+              {activeProfile?.id
+                ? (localState.profiles.find(
+                    (profile) => profile.id === activeProfile.id
+                  )?.progress.skillMastery[lesson.skillId]?.status ??
+                  'not-started')
+                : 'not-started'}
+            </p>
             <p>
               Last completed step:{' '}
               {summary?.lastCompletedActivityId ?? 'None yet'}
