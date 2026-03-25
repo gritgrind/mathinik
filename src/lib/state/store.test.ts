@@ -6,6 +6,7 @@ import {
   createStatePersistence,
   loadExampleStateStore,
   STATE_STORE_KEY,
+  setActiveProfileInStateStore,
   updateProfilePlacementInStateStore,
 } from './store'
 import { StateStoreValidationError } from './validate-state-store'
@@ -148,6 +149,36 @@ describe('state persistence', () => {
         used: false,
         recommendedGrade: 2,
       },
+    })
+  })
+
+  it('switches the active profile without mutating another profile state', () => {
+    const firstProfile = createChildProfile(
+      { displayName: 'Ava', gradeStart: 1 },
+      { now: '2026-03-25T09:00:00.000Z' }
+    )
+    const secondProfile = createChildProfile(
+      { displayName: 'Milo', gradeStart: 3 },
+      { now: '2026-03-25T09:05:00.000Z' }
+    )
+    const state = addProfileToStateStore(
+      addProfileToStateStore(createEmptyStateStore(), firstProfile, {
+        now: '2026-03-25T09:00:00.000Z',
+      }),
+      secondProfile,
+      {
+        now: '2026-03-25T09:05:00.000Z',
+      }
+    )
+
+    const switchedState = setActiveProfileInStateStore(state, firstProfile.id, {
+      now: '2026-03-25T09:06:00.000Z',
+    })
+
+    expect(switchedState.activeProfileId).toBe(firstProfile.id)
+    expect(switchedState.profiles[1]).toMatchObject({
+      displayName: 'Milo',
+      gradeStart: 3,
     })
   })
 })

@@ -12,6 +12,7 @@ import {
   createBrowserStatePersistence,
   createChildProfile,
   createEmptyStateStore,
+  setActiveProfileInStateStore,
   updateProfilePlacementInStateStore,
 } from '~/lib/state/store'
 
@@ -193,6 +194,26 @@ function ParentsRoute() {
     }
   }
 
+  function handleSwitchProfile(profileId: string) {
+    setError(null)
+
+    try {
+      const persistence = createBrowserStatePersistence({ contentVersion })
+      const now = new Date().toISOString()
+      const nextState = setActiveProfileInStateStore(localState, profileId, {
+        now,
+      })
+
+      setLocalState(persistence.saveStateStore(nextState))
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : 'Could not switch the active child profile.'
+      )
+    }
+  }
+
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 md:px-6 md:py-12">
       <section className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(18rem,0.9fr)]">
@@ -303,6 +324,40 @@ function ParentsRoute() {
             <p>{stateModels.profiles.length} local profile loaded</p>
             <p>{activeProfile?.completedLessonCount ?? 0} completed lesson</p>
             <p>Refresh-safe storage is ready for the next onboarding slices</p>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid gap-4">
+        <Card className="border-border/60 bg-card/90 shadow-lg shadow-primary/5">
+          <CardHeader>
+            <h2 className="text-2xl font-black tracking-tight">
+              Profile switcher
+            </h2>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm leading-6 text-muted-foreground">
+            <p>
+              Switch the active child without mixing another learner&apos;s
+              local grade path, placement shell, or progress summary.
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              {stateModels.profiles.map((profile) => (
+                <button
+                  className={buttonVariants({
+                    variant:
+                      profile.id === activeProfile?.id
+                        ? 'default'
+                        : 'secondary',
+                  })}
+                  key={profile.id}
+                  onClick={() => handleSwitchProfile(profile.id)}
+                  type="button"
+                >
+                  {profile.displayName}
+                </button>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </section>

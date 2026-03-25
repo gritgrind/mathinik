@@ -153,6 +153,28 @@ export function updateProfilePlacementInStateStore(
   })
 }
 
+export function setActiveProfileInStateStore(
+  state: StateStore,
+  profileId: string,
+  options: { now?: string } = {}
+): StateStore {
+  const nextProfiles = state.profiles.map((profile) =>
+    profile.id === profileId
+      ? {
+          ...profile,
+          lastActiveAt: options.now ?? new Date().toISOString(),
+        }
+      : profile
+  )
+
+  return parseStateStore({
+    ...state,
+    activeProfileId: profileId,
+    updatedAt: options.now ?? new Date().toISOString(),
+    profiles: nextProfiles,
+  })
+}
+
 export function createStatePersistence(
   storage: StorageLike,
   options: {
