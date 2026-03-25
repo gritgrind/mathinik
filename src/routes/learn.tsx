@@ -49,6 +49,8 @@ function LearnRoute() {
   const [attemptsByActivityId, setAttemptsByActivityId] = useState<
     Record<string, ActivityAttemptRecord[]>
   >({})
+  const [followUpSatisfiedByActivityId, setFollowUpSatisfiedByActivityId] =
+    useState<Record<string, boolean>>({})
 
   const stateModels = normalizeStateStore(localState)
   const activeProfile = stateModels.activeProfile
@@ -97,7 +99,11 @@ function LearnRoute() {
     currentActivityDefinition && currentActivity
       ? resolveFeedbackAction(
           currentActivityDefinition,
-          attemptsByActivityId[currentActivity.id] ?? []
+          attemptsByActivityId[currentActivity.id] ?? [],
+          {
+            followUpSatisfied:
+              followUpSatisfiedByActivityId[currentActivity.id] ?? false,
+          }
         )
       : null
 
@@ -158,6 +164,17 @@ function LearnRoute() {
         ...(currentAttempts[currentActivity.id] ?? []),
         { correct },
       ],
+    }))
+  }
+
+  function handleSatisfyFollowUp() {
+    if (!currentActivity) {
+      return
+    }
+
+    setFollowUpSatisfiedByActivityId((currentState) => ({
+      ...currentState,
+      [currentActivity.id]: true,
     }))
   }
 
@@ -243,6 +260,15 @@ function LearnRoute() {
                       >
                         Record success
                       </button>
+                      {feedbackAction.kind === 'follow-up' ? (
+                        <button
+                          className={buttonVariants({ variant: 'secondary' })}
+                          onClick={handleSatisfyFollowUp}
+                          type="button"
+                        >
+                          Confirm second representation
+                        </button>
+                      ) : null}
                     </div>
                   </div>
                 ) : null}

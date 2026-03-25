@@ -8,11 +8,13 @@ export type FeedbackAction =
   | { kind: 'hint'; message: string }
   | { kind: 'retry'; message: string }
   | { kind: 'explanation'; message: string }
+  | { kind: 'follow-up'; message: string }
   | { kind: 'advance'; message: string }
 
 export function resolveFeedbackAction(
   activity: Activity,
-  attempts: ActivityAttemptRecord[]
+  attempts: ActivityAttemptRecord[],
+  options: { followUpSatisfied?: boolean } = {}
 ): FeedbackAction {
   const latestAttempt = attempts[attempts.length - 1]
 
@@ -41,6 +43,13 @@ export function resolveFeedbackAction(
     return {
       kind: 'retry',
       message: 'Try again with a new approach.',
+    }
+  }
+
+  if (activity.followUp && !options.followUpSatisfied) {
+    return {
+      kind: 'follow-up',
+      message: activity.followUp.prompt,
     }
   }
 

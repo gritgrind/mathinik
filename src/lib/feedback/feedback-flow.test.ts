@@ -17,7 +17,7 @@ describe('resolveFeedbackAction', () => {
     })
   })
 
-  it('advances after a correct attempt', () => {
+  it('triggers a follow-up representation after first success when configured', () => {
     const activity = activities.find(
       (entry) => entry.id === 'build-equation-2-plus-1'
     )
@@ -25,6 +25,23 @@ describe('resolveFeedbackAction', () => {
     if (!activity) throw new Error('Expected activity')
 
     expect(resolveFeedbackAction(activity, [{ correct: true }])).toEqual({
+      kind: 'follow-up',
+      message: 'Now match the built equation to the right apple picture.',
+    })
+  })
+
+  it('advances after follow-up is satisfied', () => {
+    const activity = activities.find(
+      (entry) => entry.id === 'build-equation-2-plus-1'
+    )
+
+    if (!activity) throw new Error('Expected activity')
+
+    expect(
+      resolveFeedbackAction(activity, [{ correct: true }], {
+        followUpSatisfied: true,
+      })
+    ).toEqual({
       kind: 'advance',
       message: 'Great job. Move to the next activity.',
     })
