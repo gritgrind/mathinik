@@ -17,8 +17,8 @@ describe('content repository', () => {
     expect(repository.getSummary()).toMatchObject({
       gradeCount: 1,
       skillCount: 1,
-      lessonCount: 1,
-      activityCount: 3,
+      lessonCount: 2,
+      activityCount: 5,
     })
     expect(repository.getLesson('g1-add-within-5-lesson-1')?.title).toBe(
       'Build Groups and Equations'

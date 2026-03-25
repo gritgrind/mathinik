@@ -29,6 +29,10 @@ import {
   calculateSkillMasteryUpdate,
 } from '~/lib/progression/mastery'
 import {
+  applyUnlocksAndRewardsToStateStore,
+  calculateUnlocksAndRewards,
+} from '~/lib/progression/unlocks'
+import {
   createBrowserStatePersistence,
   createEmptyStateStore,
   updateLessonSessionStateInStateStore,
@@ -210,10 +214,24 @@ function LearnRoute() {
               )?.progress.skillMastery[lesson.skillId]?.value ?? 0
             )
 
-            return applySkillMasteryToStateStore(
+            const stateWithMastery = applySkillMasteryToStateStore(
               stateWithCompletion,
               activeProfile.id,
               masteryUpdate
+            )
+
+            const unlockResult = calculateUnlocksAndRewards(
+              contentRepository,
+              stateWithMastery,
+              activeProfile.id,
+              lesson,
+              completionOutcome.earnedStars
+            )
+
+            return applyUnlocksAndRewardsToStateStore(
+              stateWithMastery,
+              activeProfile.id,
+              unlockResult
             )
           })()
         : nextState
@@ -417,6 +435,14 @@ function LearnRoute() {
                   )?.progress.skillMastery[lesson.skillId]?.status ??
                   'not-started')
                 : 'not-started'}
+            </p>
+            <p>
+              Unlocked lessons:{' '}
+              {activeProfile?.id
+                ? (localState.profiles.find(
+                    (profile) => profile.id === activeProfile.id
+                  )?.progress.unlockedLessonIds.length ?? 0)
+                : 0}
             </p>
             <p>
               Last completed step:{' '}

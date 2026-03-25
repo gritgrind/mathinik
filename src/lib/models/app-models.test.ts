@@ -7,7 +7,7 @@ describe('app model normalization', () => {
   it('normalizes lessons and activities for app-facing access', () => {
     const models = normalizeContentPack(loadBundledContentPack())
 
-    expect(models.lessons).toHaveLength(1)
+    expect(models.lessons).toHaveLength(2)
     expect(models.lessonsById.get('g1-add-within-5-lesson-1')).toMatchObject({
       gradeNumber: 1,
       skillId: 'g1-add-within-5',

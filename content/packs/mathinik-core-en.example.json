@@ -118,6 +118,58 @@
                   }
                 }
               ]
+            },
+            {
+              "id": "g1-add-within-5-lesson-2",
+              "slug": "show-and-check-sums-within-5",
+              "title": "Show and Check Sums Within 5",
+              "goal": "Confirm small addition sums with support checks.",
+              "estimatedMinutes": 5,
+              "unlock": {
+                "requiresLessonIds": ["g1-add-within-5-lesson-1"],
+                "minStars": 2,
+                "minMastery": 0.6
+              },
+              "reward": {
+                "starsAvailable": 3,
+                "badgeId": "sum-checker",
+                "mapNodeId": "grade-1-add-2"
+              },
+              "activities": [
+                {
+                  "id": "choose-sum-4",
+                  "type": "multiple-choice",
+                  "prompt": "Which picture shows 4 apples altogether?",
+                  "difficulty": "easy",
+                  "success": {
+                    "mode": "choice-match",
+                    "stars": 1
+                  },
+                  "content": {
+                    "kind": "multiple-choice",
+                    "choices": [
+                      { "id": "a", "label": "3 apples", "visual": "apples-3" },
+                      { "id": "b", "label": "4 apples", "visual": "apples-4" },
+                      { "id": "c", "label": "5 apples", "visual": "apples-5" }
+                    ],
+                    "correctChoiceIds": ["b"]
+                  }
+                },
+                {
+                  "id": "type-sum-4",
+                  "type": "numeric-input",
+                  "prompt": "Type the total for 2 apples and 2 apples.",
+                  "difficulty": "easy",
+                  "success": {
+                    "mode": "numeric-match",
+                    "stars": 1
+                  },
+                  "content": {
+                    "kind": "numeric-input",
+                    "acceptedAnswers": [4, "4"]
+                  }
+                }
+              ]
             }
           ]
         }
