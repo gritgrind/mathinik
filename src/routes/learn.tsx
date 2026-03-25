@@ -461,6 +461,17 @@ function LearnRoute() {
                         ? 'Finish lesson'
                         : 'Advance to next activity'}
                   </button>
+                  {session.status === 'completed' ? (
+                    <a
+                      className={buttonVariants({
+                        size: 'lg',
+                        variant: 'secondary',
+                      })}
+                      href="/learn/completed"
+                    >
+                      See lesson wrap-up
+                    </a>
+                  ) : null}
                   <button
                     className={buttonVariants({
                       size: 'lg',
