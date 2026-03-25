@@ -1,5 +1,6 @@
+import { EquationBuilderActivity } from '~/components/lesson/EquationBuilderActivity'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
-import type { Activity } from '~/lib/content/types'
+import type { Activity, EquationBuilderContent } from '~/lib/content/types'
 
 type ActivityRendererProps = {
   activity: Activity
@@ -44,15 +45,9 @@ function EquationBuilderActivityCard({ activity }: ActivityRendererProps) {
   }
 
   return (
-    <RendererCard
-      eyebrow="Equation builder"
-      title={activity.prompt}
-      tone="bg-primary/10"
-    >
-      <p>Palette tokens: {activity.content.palette.length}</p>
-      <p>Left side slots: {activity.content.leftSide.length}</p>
-      <p>Valid equations: {activity.content.validAnswers.length}</p>
-    </RendererCard>
+    <EquationBuilderActivity
+      activity={activity as Activity & { content: EquationBuilderContent }}
+    />
   )
 }
 
