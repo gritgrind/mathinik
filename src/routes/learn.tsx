@@ -5,6 +5,10 @@ import { buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader } from '~/components/ui/card'
 import { getBundledContentRepository } from '~/lib/content/repository'
 import {
+  type ActivityAttemptRecord,
+  resolveFeedbackAction,
+} from '~/lib/feedback/feedback-flow'
+import {
   advanceLessonSession,
   getCurrentActivity,
   type LessonSession,
@@ -16,6 +20,18 @@ import {
   normalizeContentPack,
   normalizeStateStore,
 } from '~/lib/models/app-models'
+import {
+  applyLessonCompletionToStateStore,
+  calculateLessonCompletion,
+} from '~/lib/progression/lesson-completion'
+import {
+  applySkillMasteryToStateStore,
+  calculateSkillMasteryUpdate,
+} from '~/lib/progression/mastery'
+import {
+  applyUnlocksAndRewardsToStateStore,
+  calculateUnlocksAndRewards,
+} from '~/lib/progression/unlocks'
 import {
   createBrowserStatePersistence,
   createEmptyStateStore,
@@ -42,6 +58,11 @@ function LearnRoute() {
     createEmptyStateStore({ contentVersion })
   )
   const [session, setSession] = useState<LessonSession | null>(null)
+  const [attemptsByActivityId, setAttemptsByActivityId] = useState<
+    Record<string, ActivityAttemptRecord[]>
+  >({})
+  const [followUpSatisfiedByActivityId, setFollowUpSatisfiedByActivityId] =
+    useState<Record<string, boolean>>({})
 
   const stateModels = normalizeStateStore(localState)
   const activeProfile = stateModels.activeProfile
@@ -82,10 +103,46 @@ function LearnRoute() {
     currentActivity && session
       ? contentRepository.getActivity(session.lessonId, currentActivity.id)
       : null
+  const lessonDefinition = contentRepository.getLesson(lesson.id)
+  const lessonActivityDefinitions = useMemo(
+    () =>
+      (lessonDefinition?.activities ?? [])
+        .map((activity) =>
+          contentRepository.getActivity(lesson.id, activity.id)
+        )
+        .filter((activity): activity is NonNullable<typeof activity> =>
+          Boolean(activity)
+        ),
+    [contentRepository, lesson.id, lessonDefinition]
+  )
   const summary = useMemo(
     () => (session ? summarizeLessonSession(session) : null),
     [session]
   )
+  const lessonOutcome = session
+    ? calculateLessonCompletion(
+        lessonActivityDefinitions,
+        attemptsByActivityId,
+        (localState.profiles.find((profile) => profile.id === activeProfile?.id)
+          ?.progress.lessonProgress[lesson.id]?.bestStars as
+          | 0
+          | 1
+          | 2
+          | 3
+          | undefined) ?? 0
+      )
+    : null
+  const feedbackAction =
+    currentActivityDefinition && currentActivity
+      ? resolveFeedbackAction(
+          currentActivityDefinition,
+          attemptsByActivityId[currentActivity.id] ?? [],
+          {
+            followUpSatisfied:
+              followUpSatisfiedByActivityId[currentActivity.id] ?? false,
+          }
+        )
+      : null
 
   function handleStartLesson() {
     if (!activeProfile) {
@@ -129,8 +186,83 @@ function LearnRoute() {
       completed: nextSession.status === 'completed',
     })
 
-    setLocalState(persistence.saveStateStore(nextState))
+    const completedState =
+      nextSession.status === 'completed'
+        ? (() => {
+            const completionOutcome = calculateLessonCompletion(
+              lessonActivityDefinitions,
+              attemptsByActivityId,
+              (localState.profiles.find(
+                (profile) => profile.id === activeProfile.id
+              )?.progress.lessonProgress[lesson.id]?.bestStars as
+                | 0
+                | 1
+                | 2
+                | 3
+                | undefined) ?? 0
+            )
+            const stateWithCompletion = applyLessonCompletionToStateStore(
+              nextState,
+              nextSession,
+              completionOutcome
+            )
+            const masteryUpdate = calculateSkillMasteryUpdate(
+              lesson,
+              completionOutcome,
+              localState.profiles.find(
+                (profile) => profile.id === activeProfile.id
+              )?.progress.skillMastery[lesson.skillId]?.value ?? 0
+            )
+
+            const stateWithMastery = applySkillMasteryToStateStore(
+              stateWithCompletion,
+              activeProfile.id,
+              masteryUpdate
+            )
+
+            const unlockResult = calculateUnlocksAndRewards(
+              contentRepository,
+              stateWithMastery,
+              activeProfile.id,
+              lesson,
+              completionOutcome.earnedStars
+            )
+
+            return applyUnlocksAndRewardsToStateStore(
+              stateWithMastery,
+              activeProfile.id,
+              unlockResult
+            )
+          })()
+        : nextState
+
+    setLocalState(persistence.saveStateStore(completedState))
     setSession(nextSession)
+  }
+
+  function handleRecordAttempt(correct: boolean) {
+    if (!currentActivity) {
+      return
+    }
+
+    setAttemptsByActivityId((currentAttempts) => ({
+      ...currentAttempts,
+      [currentActivity.id]: [
+        ...(currentAttempts[currentActivity.id] ?? []),
+        { correct },
+      ],
+    }))
+  }
+
+  function handleSatisfyFollowUp() {
+    if (!currentActivity) {
+      return
+    }
+
+    setFollowUpSatisfiedByActivityId((currentState) => ({
+      ...currentState,
+      [currentActivity.id]: true,
+    }))
   }
 
   return (
@@ -194,6 +326,39 @@ function LearnRoute() {
                 ) : (
                   <p>Missing activity definition for this session step.</p>
                 )}
+                {feedbackAction ? (
+                  <div className="space-y-3 rounded-[1.5rem] border border-border/60 bg-background/75 p-4">
+                    <p className="text-sm font-semibold text-foreground">
+                      Feedback step: {feedbackAction.kind}
+                    </p>
+                    <p>{feedbackAction.message}</p>
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        className={buttonVariants({ variant: 'secondary' })}
+                        onClick={() => handleRecordAttempt(false)}
+                        type="button"
+                      >
+                        Record struggle
+                      </button>
+                      <button
+                        className={buttonVariants({ variant: 'secondary' })}
+                        onClick={() => handleRecordAttempt(true)}
+                        type="button"
+                      >
+                        Record success
+                      </button>
+                      {feedbackAction.kind === 'follow-up' ? (
+                        <button
+                          className={buttonVariants({ variant: 'secondary' })}
+                          onClick={handleSatisfyFollowUp}
+                          type="button"
+                        >
+                          Confirm second representation
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
                 <div className="flex flex-wrap gap-3">
                   <button
                     className={buttonVariants({ size: 'lg' })}
@@ -261,6 +426,24 @@ function LearnRoute() {
               {summary?.totalActivities ?? lesson.activityCount}
             </p>
             <p>Completed activities: {summary?.completedActivities ?? 0}</p>
+            <p>Earned stars: {lessonOutcome?.earnedStars ?? 0}</p>
+            <p>
+              Skill mastery:{' '}
+              {activeProfile?.id
+                ? (localState.profiles.find(
+                    (profile) => profile.id === activeProfile.id
+                  )?.progress.skillMastery[lesson.skillId]?.status ??
+                  'not-started')
+                : 'not-started'}
+            </p>
+            <p>
+              Unlocked lessons:{' '}
+              {activeProfile?.id
+                ? (localState.profiles.find(
+                    (profile) => profile.id === activeProfile.id
+                  )?.progress.unlockedLessonIds.length ?? 0)
+                : 0}
+            </p>
             <p>
               Last completed step:{' '}
               {summary?.lastCompletedActivityId ?? 'None yet'}
