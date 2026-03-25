@@ -44,3 +44,41 @@ Current state
 - main includes the app foundation and Cloudflare Pages baseline.
 - PR #17 and PR #18 are merged.
 - The next session can use this file as a short memory of what exists and why.
+
+2026-03-25 follow-up batch
+
+Completed work
+- Issues #20 through #28 were implemented together on one branch with one main commit per issue.
+- PR #29 was opened for the next foundation batch.
+
+What was added
+- Runtime content validation and indexed content loading.
+- Runtime state validation and a persistence abstraction around localStorage.
+- Normalized lesson, activity, and profile models for app-facing code.
+- Parent onboarding for child creation, manual starting grade, placement-shell storage, and active profile switching.
+- Learner lesson session skeleton with start, advance, completion summary, and resume behavior.
+- Activity renderer dispatch for object manipulation, equation builder, multiple choice, and numeric input mechanics.
+
+Important file landmarks
+- src/lib/content/validate-content-pack.ts validates content packs with Ajv.
+- src/lib/content/repository.ts exposes bundled pack loading and indexed lookup helpers.
+- src/lib/state/store.ts now owns profile creation, placement updates, active-profile switching, and resumable lesson state updates.
+- src/lib/models/app-models.ts contains the normalized app-facing adapters.
+- src/lib/lesson/session-runner.ts contains the session start, advance, resume, and summary logic.
+- src/components/lesson/ActivityRenderer.tsx is the new mechanic dispatch boundary.
+
+Useful commands
+- pnpm lint
+- pnpm build
+- pnpm test
+
+Learnings from the batch
+- The content and state schema files were useful enough to drive real runtime boundaries instead of only acting as documentation.
+- Keeping one branch with one issue-sized commit works, but test and smoke assertions can still need a small follow-up fix commit once the combined flow settles.
+- Resume behavior becomes much simpler once lesson flow is normalized first and then persisted second.
+- A dedicated activity dispatch layer prevents the learner route from turning into a mechanic-specific switchboard too early.
+
+Current state
+- The repo now has the next foundation layer needed for richer onboarding, map flow, and lesson mechanics.
+- PR #29 contains issues #20 through #28.
+- progress.txt should be appended before future PRs so session memory stays current.
