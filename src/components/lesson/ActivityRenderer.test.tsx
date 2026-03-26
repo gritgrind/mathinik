@@ -41,4 +41,26 @@ describe('ActivityRenderer', () => {
       screen.getByText('Unsupported activity type: drag-the-dragon')
     ).toBeVisible()
   })
+
+  it('fails clearly when activity type and content kind do not match', () => {
+    render(
+      <ActivityRenderer
+        activity={{
+          id: 'mismatch-1',
+          type: 'equation-builder',
+          prompt: 'Mismatched prompt',
+          difficulty: 'easy',
+          success: { mode: 'exact-match', stars: 1 },
+          content: {
+            kind: 'numeric-input',
+            acceptedAnswers: ['1'],
+          },
+        }}
+      />
+    )
+
+    expect(
+      screen.getByText('Unsupported activity type: equation-builder')
+    ).toBeVisible()
+  })
 })

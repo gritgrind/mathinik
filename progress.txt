@@ -248,3 +248,38 @@ Learnings from the batch
 Current state
 - The parent experience now has setup plus a lightweight local summary screen.
 - The next likely batch is QA hardening: broader unit and component coverage, then stronger end-to-end learner and offline coverage.
+
+Copilot handoff note
+- PR #53 is merged.
+- `main` is now the correct starting point for the next batch.
+- Recommended next work: QA hardening, starting with stronger unit and component coverage, then broader end-to-end learner and offline flow coverage.
+
+2026-03-26 QA hardening batch
+
+Completed work
+- MIP-035 was implemented as a test-hardening pass for the existing engines and learner mechanics.
+
+What was added
+- Broader direct evaluation coverage for wrong-shape attempts, count-based set matches, and trimmed support-input answers.
+- Additional progression coverage for mastery thresholds, capped mastery growth, unlock gating, missing-profile unlock handling, and reward deduplication.
+- Additional persistence coverage for state clearing, profile-name validation, and lesson attempt-count behavior.
+- Additional component coverage for support-answer retries, renderer mismatch failures, and object regrouping back out of a solved state.
+
+Important file landmarks
+- src/lib/evaluation/evaluate-activity.test.ts now covers mismatched attempt kinds and count-based set rules.
+- src/lib/progression/mastery.test.ts and src/lib/progression/unlocks.test.ts now exercise threshold and gating edge cases directly.
+- src/lib/state/store.test.ts now covers state clearing, trimmed profile creation, and attempt-count persistence.
+- src/components/lesson/SupportActivities.test.tsx, src/components/lesson/ObjectManipulationActivity.test.tsx, and src/components/lesson/ActivityRenderer.test.tsx now cover more learner-facing correction and failure paths.
+
+Useful commands
+- pnpm lint
+- pnpm test:unit
+- pnpm test
+
+Learnings from the batch
+- The deepest confidence gains came from edge-case tests at module boundaries rather than from changing runtime code.
+- Small component-behavior tests were enough to cover correction-friendly learner paths without adding brittle route-level coupling.
+
+Current state
+- Core engine and interaction coverage is stronger ahead of broader end-to-end hardening.
+- The next natural batch is MIP-036 for critical learner-flow E2E coverage.

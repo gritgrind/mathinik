@@ -85,6 +85,17 @@ describe('state persistence', () => {
     expect(persistence.loadStateStore().source).toBe('storage')
   })
 
+  it('clears persisted state through the persistence abstraction', () => {
+    const storage = createMemoryStorage({
+      [STATE_STORE_KEY]: JSON.stringify(loadExampleStateStore()),
+    })
+    const persistence = createStatePersistence(storage)
+
+    persistence.clearStateStore()
+
+    expect(persistence.loadStateStore().source).toBe('empty')
+  })
+
   it('creates a local profile and makes it active in state', () => {
     const state = createEmptyStateStore()
     const profile = createChildProfile(
@@ -106,6 +117,34 @@ describe('state persistence', () => {
       displayName: 'Milo',
       gradeStart: 2,
     })
+  })
+
+  it('trims profile names and rejects blank ones', () => {
+    expect(
+      createChildProfile(
+        {
+          displayName: '  Milo  ',
+          gradeStart: 2,
+        },
+        {
+          now: '2026-03-25T09:15:00.000Z',
+        }
+      )
+    ).toMatchObject({
+      displayName: 'Milo',
+    })
+
+    expect(() =>
+      createChildProfile(
+        {
+          displayName: '   ',
+          gradeStart: 1,
+        },
+        {
+          now: '2026-03-25T09:16:00.000Z',
+        }
+      )
+    ).toThrow('Display name is required')
   })
 
   it('stores manual or placement onboarding recommendations safely', () => {
@@ -228,6 +267,52 @@ describe('state persistence', () => {
     expect(completedState.profiles[0]?.progress.completedLessonIds).toContain(
       'g1-add-within-5-lesson-1'
     )
+  })
+
+  it('increments attempt counts only when a new run starts', () => {
+    const state = loadExampleStateStore()
+
+    const restartedState = updateLessonSessionStateInStateStore(
+      state,
+      {
+        profileId: 'child-ava',
+        lessonId: 'g1-add-within-5-lesson-2',
+        activityId: 'build-equation-3-plus-1',
+        activityIndex: 0,
+        resumable: true,
+        completed: false,
+      },
+      {
+        incrementAttempt: true,
+        now: '2026-03-25T10:15:00.000Z',
+      }
+    )
+
+    const advancedState = updateLessonSessionStateInStateStore(
+      restartedState,
+      {
+        profileId: 'child-ava',
+        lessonId: 'g1-add-within-5-lesson-2',
+        activityId: 'quick-check',
+        activityIndex: 1,
+        resumable: true,
+        completed: false,
+      },
+      {
+        now: '2026-03-25T10:16:00.000Z',
+      }
+    )
+
+    expect(
+      restartedState.profiles[0]?.progress.lessonProgress[
+        'g1-add-within-5-lesson-2'
+      ]?.attemptCount
+    ).toBe(2)
+    expect(
+      advancedState.profiles[0]?.progress.lessonProgress[
+        'g1-add-within-5-lesson-2'
+      ]?.attemptCount
+    ).toBe(2)
   })
 
   it('persists lightweight mascot personalization locally', () => {
