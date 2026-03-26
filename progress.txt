@@ -219,3 +219,32 @@ Learnings from the batch
 Current state
 - The repo now supports installability, app-shell offline startup after a prior load, content-pack caching, and a safe update path.
 - The next likely batch is the parent summary screen or additional QA and hardening work around the new learner and offline flows.
+
+2026-03-26 parent summary batch
+
+Completed work
+- Issue #52 was created for the parent summary screen.
+- MIP-029 parent summary was implemented as a derived read over local learner state.
+
+What was added
+- A dedicated parent summary helper that derives completed lessons, mastery, rewards, and recent activity from local state.
+- Parent-facing summary UI in the existing parent route without moving progression rules into the route.
+
+Important file landmarks
+- src/lib/parent-summary.ts derives the parent summary model.
+- src/lib/parent-summary.test.ts covers the read model directly.
+- src/routes/parents.tsx now shows lesson history, mastery, rewards, and resume context.
+- AGENT-HANDOFF.md contains the repo handoff note for future agent switches.
+
+Useful commands
+- pnpm lint
+- pnpm test:unit
+- pnpm test
+
+Learnings from the batch
+- The parent summary becomes much easier to maintain when it stays a pure read model over the existing learner state instead of adding new persistence or analytics layers.
+- Most of the useful parent context already existed in progression and resume modules; the main work was composing it cleanly for presentation.
+
+Current state
+- The parent experience now has setup plus a lightweight local summary screen.
+- The next likely batch is QA hardening: broader unit and component coverage, then stronger end-to-end learner and offline coverage.
