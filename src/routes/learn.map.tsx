@@ -64,6 +64,8 @@ function LearnMapRoute() {
                         ? 'rounded-[1.75rem] border border-primary/30 bg-primary/10 p-5'
                         : 'rounded-[1.75rem] border border-secondary/30 bg-secondary/10 p-5'
                   }
+                  data-state={item.state}
+                  data-testid={`map-item-${item.id}`}
                   key={item.id}
                 >
                   <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">

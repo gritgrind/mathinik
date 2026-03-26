@@ -24,6 +24,18 @@ export function ContentPackStatus({
     let active = true
 
     async function boot() {
+      const testOverride =
+        typeof window === 'undefined'
+          ? undefined
+          : window.__MATHINIK_TEST_CONTENT_STATUS__
+
+      if (testOverride?.status) {
+        setCachedVersion(testOverride.cachedVersion ?? null)
+        setLatestVersion(testOverride.latestVersion ?? currentVersion)
+        setStatus(testOverride.status)
+        return
+      }
+
       try {
         await cacheBundledContentPack()
         const nextStatus = await getContentUpdateStatus(currentVersion)

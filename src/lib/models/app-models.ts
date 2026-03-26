@@ -36,6 +36,8 @@ export type ProfileModel = {
   displayName: string
   gradeStart: number
   avatarLabel: string
+  unlockedLessonIds: string[]
+  completedLessonIds: string[]
   unlockedLessonCount: number
   completedLessonCount: number
   totalStars: number
@@ -126,6 +128,8 @@ export function normalizeStateStore(state: StateStore): NormalizedStateModels {
     displayName: profile.displayName,
     gradeStart: profile.gradeStart,
     avatarLabel: profile.avatar?.mascotStyle ?? 'default mascot',
+    unlockedLessonIds: profile.progress.unlockedLessonIds,
+    completedLessonIds: profile.progress.completedLessonIds,
     unlockedLessonCount: profile.progress.unlockedLessonIds.length,
     completedLessonCount: profile.progress.completedLessonIds.length,
     totalStars: profile.progress.rewards.totalStars,

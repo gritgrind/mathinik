@@ -580,29 +580,35 @@ function ParentsRoute() {
 
             <div className="grid gap-3 md:grid-cols-3">
               <div className="rounded-[1.5rem] border border-border/60 bg-background/70 p-4">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-                  Completed lessons
-                </p>
-                <p className="mt-2 text-2xl font-black tracking-tight text-foreground">
-                  {parentSummary?.completedLessons.length ?? 0}
-                </p>
+                <div data-testid="parent-summary-completed">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                    Completed lessons
+                  </p>
+                  <p className="mt-2 text-2xl font-black tracking-tight text-foreground">
+                    {parentSummary?.completedLessons.length ?? 0}
+                  </p>
+                </div>
               </div>
               <div className="rounded-[1.5rem] border border-border/60 bg-background/70 p-4">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-                  Total stars
-                </p>
-                <p className="mt-2 text-2xl font-black tracking-tight text-foreground">
-                  {parentSummary?.rewards.totalStars ?? 0}
-                </p>
+                <div data-testid="parent-summary-stars">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                    Total stars
+                  </p>
+                  <p className="mt-2 text-2xl font-black tracking-tight text-foreground">
+                    {parentSummary?.rewards.totalStars ?? 0}
+                  </p>
+                </div>
               </div>
               <div className="rounded-[1.5rem] border border-border/60 bg-background/70 p-4">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
-                  Recent activity
-                </p>
-                <p className="mt-2 text-sm font-semibold text-foreground">
-                  {parentSummary?.recentActivity.lessonTitle ??
-                    'No recent activity yet'}
-                </p>
+                <div data-testid="parent-summary-recent">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                    Recent activity
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-foreground">
+                    {parentSummary?.recentActivity.lessonTitle ??
+                      'No recent activity yet'}
+                  </p>
+                </div>
               </div>
             </div>
 
