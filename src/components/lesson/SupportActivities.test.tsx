@@ -52,11 +52,51 @@ describe('support lesson activities', () => {
     expect(screen.getByText('This support check is correct.')).toBeVisible()
   })
 
+  it('shows corrective feedback for an incorrect multiple choice answer', async () => {
+    if (
+      !multipleChoiceActivity ||
+      multipleChoiceActivity.content.kind !== 'multiple-choice'
+    ) {
+      throw new Error('Expected multiple-choice activity')
+    }
+
+    const user = userEvent.setup()
+    render(
+      <MultipleChoiceActivity
+        activity={
+          multipleChoiceActivity as Activity & {
+            content: MultipleChoiceContent
+          }
+        }
+      />
+    )
+
+    await user.click(screen.getByRole('button', { name: '4 apples' }))
+
+    expect(screen.getByText('Try another support answer.')).toBeVisible()
+  })
+
   it('renders numeric input as a support format', async () => {
     const user = userEvent.setup()
     render(<NumericInputActivity activity={numericInputActivity} />)
 
     await user.type(screen.getByRole('textbox'), '3')
+    await user.click(screen.getByRole('button', { name: 'Check answer' }))
+
+    expect(screen.getByText('This support check is correct.')).toBeVisible()
+  })
+
+  it('accepts trimmed numeric input answers and shows retry feedback', async () => {
+    const user = userEvent.setup()
+    render(<NumericInputActivity activity={numericInputActivity} />)
+
+    await user.type(screen.getByRole('textbox'), ' 4 ')
+    await user.click(screen.getByRole('button', { name: 'Check answer' }))
+
+    expect(screen.getByText('Try another support answer.')).toBeVisible()
+
+    await user.clear(screen.getByRole('textbox'))
+    await user.type(screen.getByRole('textbox'), ' 3 ')
     await user.click(screen.getByRole('button', { name: 'Check answer' }))
 
     expect(screen.getByText('This support check is correct.')).toBeVisible()

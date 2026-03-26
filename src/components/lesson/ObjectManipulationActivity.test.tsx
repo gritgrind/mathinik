@@ -41,4 +41,35 @@ describe('ObjectManipulationActivity', () => {
 
     expect(screen.getByText('Groups match the content answer.')).toBeVisible()
   })
+
+  it('shows unsolved feedback again after moving an object out of a valid grouping', async () => {
+    if (!activity || activity.content.kind !== 'object-manipulation') {
+      throw new Error('Expected object-manipulation activity')
+    }
+
+    const user = userEvent.setup()
+    render(
+      <ObjectManipulationActivity
+        activity={activity as Activity & { content: ObjectManipulationContent }}
+      />
+    )
+
+    const sourcePanel = screen.getByRole('button', { name: /Source/ })
+    const groupAPanel = screen.getByRole('button', { name: /Group A/ })
+    const groupBPanel = screen.getByRole('button', { name: /Group B/ })
+
+    await user.click(screen.getByRole('button', { name: 'Apple 1' }))
+    await user.click(groupAPanel)
+    await user.click(screen.getByRole('button', { name: 'Apple 2' }))
+    await user.click(groupAPanel)
+    await user.click(screen.getByRole('button', { name: 'Apple 3' }))
+    await user.click(groupBPanel)
+
+    expect(screen.getByText('Groups match the content answer.')).toBeVisible()
+
+    await user.click(screen.getByRole('button', { name: 'Apple 3' }))
+    await user.click(sourcePanel)
+
+    expect(screen.getByText('Build the matching groups.')).toBeVisible()
+  })
 })
