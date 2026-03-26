@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { ActivityRenderer } from '~/components/lesson/ActivityRenderer'
 import { buttonVariants } from '~/components/ui/button'
@@ -562,6 +562,8 @@ function LearnRoute() {
           </CardContent>
         </Card>
       </section>
+
+      <Outlet />
     </main>
   )
 }
