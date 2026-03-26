@@ -41,7 +41,7 @@ function LearnMapRoute() {
   const nextLesson = mapItems.find((item) => item.state === 'next')
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 md:px-6 md:py-12">
+    <section className="grid gap-6">
       <section className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]">
         <Card className="border-border/60 bg-card/90 shadow-xl shadow-primary/10">
           <CardHeader>
@@ -95,6 +95,6 @@ function LearnMapRoute() {
           </CardContent>
         </Card>
       </section>
-    </main>
+    </section>
   )
 }

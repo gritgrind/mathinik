@@ -283,3 +283,31 @@ Learnings from the batch
 Current state
 - Core engine and interaction coverage is stronger ahead of broader end-to-end hardening.
 - The next natural batch is MIP-036 for critical learner-flow E2E coverage.
+
+2026-03-26 Critical learner-flow E2E batch
+
+Completed work
+- MIP-036 was implemented as a first critical-path Playwright coverage pass for the learner and parent flows.
+
+What was added
+- Added an end-to-end learner flow that creates a local profile, starts the first lesson, advances through the activity sequence, completes the lesson, and verifies the wrap-up state.
+- Added an end-to-end resume flow that starts a lesson, advances partway, reloads, and confirms the saved activity step is restored.
+- Fixed learner-route nesting so `/learn/map` and `/learn/completed` render as nested content inside the learner route instead of dropping back to the base learner shell.
+
+Important file landmarks
+- tests/e2e/learner-flow.spec.ts now covers profile creation, lesson completion, wrap-up verification, and reload-based resume behavior.
+- src/routes/learn.tsx now renders nested learner child routes with `Outlet`.
+- src/routes/learn.map.tsx and src/routes/learn.completed.tsx now render as nested route sections rather than separate page shells.
+
+Useful commands
+- pnpm lint
+- pnpm test:e2e
+- pnpm test
+
+Learnings from the batch
+- Stable end-to-end coverage depended more on explicit route composition and persistence timing than on adding more assertions.
+- The learner shell already exposed enough meaningful UI state to verify progress and resume behavior without adding test-only business logic.
+
+Current state
+- Critical learner flows now have direct Playwright coverage on top of the existing smoke test.
+- The next likely step is broader E2E depth around map progression, parent summary verification, and practical offline-return behavior.
