@@ -26,7 +26,55 @@ describe('child experience helpers', () => {
     ).activeProfile
 
     expect(getNextRecommendedLesson(activeProfile, lessons)?.id).toBe(
-      'g1-add-within-5-lesson-1'
+      'g1-add-within-5-lesson-2'
     )
+  })
+
+  it('falls back to the first lesson when no resume or recommendation exists', () => {
+    const lessons = normalizeContentPack(loadBundledContentPack()).lessons
+    const activeProfile = normalizeStateStore(
+      loadExampleStateStore()
+    ).activeProfile
+
+    if (!activeProfile) {
+      throw new Error('Expected active profile')
+    }
+
+    expect(
+      getNextRecommendedLesson(
+        {
+          ...activeProfile,
+          resumableLessonId: null,
+          recommendedLessonId: null,
+          unlockedLessonIds: [],
+          completedLessonIds: [],
+        },
+        lessons
+      )?.id
+    ).toBe('g1-add-within-5-lesson-1')
+  })
+
+  it('prefers an unlocked unfinished lesson when no explicit recommendation exists', () => {
+    const lessons = normalizeContentPack(loadBundledContentPack()).lessons
+    const activeProfile = normalizeStateStore(
+      loadExampleStateStore()
+    ).activeProfile
+
+    if (!activeProfile) {
+      throw new Error('Expected active profile')
+    }
+
+    expect(
+      getNextRecommendedLesson(
+        {
+          ...activeProfile,
+          resumableLessonId: null,
+          recommendedLessonId: null,
+          completedLessonIds: ['g1-add-within-5-lesson-1'],
+          unlockedLessonIds: ['g1-add-within-5-lesson-2'],
+        },
+        lessons
+      )?.id
+    ).toBe('g1-add-within-5-lesson-2')
   })
 })

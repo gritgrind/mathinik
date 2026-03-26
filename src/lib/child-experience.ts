@@ -21,16 +21,35 @@ export function getNextRecommendedLesson(
     return lessons[0] ?? null
   }
 
-  const unlockedLessons = lessons.filter((lesson) =>
-    profile.recommendedLessonId
-      ? lesson.id === profile.recommendedLessonId || true
-      : true
-  )
+  if (profile.resumableLessonId) {
+    const resumableLesson = lessons.find(
+      (lesson) => lesson.id === profile.resumableLessonId
+    )
 
-  const unfinishedUnlockedLesson = unlockedLessons.find(
+    if (resumableLesson) {
+      return resumableLesson
+    }
+  }
+
+  if (profile.recommendedLessonId) {
+    const recommendedLesson = lessons.find(
+      (lesson) => lesson.id === profile.recommendedLessonId
+    )
+
+    if (recommendedLesson) {
+      return recommendedLesson
+    }
+  }
+
+  const nextUnlockedLesson = lessons.find(
     (lesson) =>
-      !profile.resumableLessonId || lesson.id !== profile.resumableLessonId
+      profile.unlockedLessonIds.includes(lesson.id) &&
+      !profile.completedLessonIds.includes(lesson.id)
   )
 
-  return unfinishedUnlockedLesson ?? lessons[0] ?? null
+  if (nextUnlockedLesson) {
+    return nextUnlockedLesson
+  }
+
+  return lessons[0] ?? null
 }

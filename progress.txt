@@ -311,3 +311,32 @@ Learnings from the batch
 Current state
 - Critical learner flows now have direct Playwright coverage on top of the existing smoke test.
 - The next likely step is broader E2E depth around map progression, parent summary verification, and practical offline-return behavior.
+
+2026-03-26 Broader learner, parent, and offline E2E batch
+
+Completed work
+- MIP-037 expanded Playwright coverage across learner progression, parent summary verification, and practical offline or update prompts.
+
+What was added
+- Added broader learner-flow coverage that verifies completed-route navigation, world-map state, and next-step progression after replaying the first lesson enough to unlock the second lesson.
+- Added parent-summary coverage that verifies completed lessons, total stars, recent activity, rewards, and personalization remain visible after learner progress updates.
+- Added practical offline and update coverage by exposing stable test overrides for the service-worker prompt and content-pack update status, then verifying dismiss, safe refresh, and resumable progress recovery.
+
+Important file landmarks
+- tests/e2e/learner-flow.spec.ts now covers map progression, completed-route navigation, parent summary verification, and safe refresh recovery.
+- src/components/ReloadPrompt.tsx and src/components/ContentPackStatus.tsx now support stable test-time prompt and update-state overrides without changing production behavior.
+- src/routes/learn.map.tsx and src/routes/parents.tsx expose stable test identifiers for progression and parent-summary assertions.
+- src/lib/child-experience.ts and src/lib/models/app-models.ts now surface enough learner-state detail to recommend resumable, explicitly recommended, or unlocked next lessons correctly.
+
+Useful commands
+- pnpm lint
+- pnpm test:e2e
+- pnpm test
+
+Learnings from the batch
+- Practical offline Playwright coverage was much more reliable with narrow UI-state overrides than with brittle attempts to fully simulate service-worker lifecycle changes.
+- The recommendation and progression surfaces needed small read-model improvements before the end-to-end tests could verify realistic learner advancement states.
+
+Current state
+- Learner, parent-summary, and offline-update critical paths now have meaningful end-to-end coverage instead of only smoke coverage.
+- The next likely batch is Cloudflare Pages production-like verification plus any follow-up fixes surfaced by deployed smoke checks.

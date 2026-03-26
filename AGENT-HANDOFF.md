@@ -1,11 +1,11 @@
 # Agent Handoff
 
-Last updated: 2026-03-26 after PR #54 merge
+Last updated: 2026-03-26 during MIP-037 branch work
 
 ## Current project state
 
-- `main` includes the merged offline batch from PR `#51`, the merged parent summary batch from PR `#53`, and the merged QA hardening batch from PR `#54`.
-- `progress.txt` contains the detailed session-by-session build log from the docs-only start through the MIP-035 QA hardening batch.
+- `main` includes the merged offline batch from PR `#51`, the merged parent summary batch from PR `#53`, the merged QA hardening batch from PR `#54`, and the merged critical learner-flow E2E batch from PR `#55`.
+- `progress.txt` contains the detailed session-by-session build log from the docs-only start through the MIP-037 broader E2E batch on the current branch.
 - The current implementation now covers:
   - app shell and Cloudflare Pages baseline
   - content and state validation
@@ -16,6 +16,7 @@ Last updated: 2026-03-26 after PR #54 merge
   - PWA installability, app-shell caching, content-pack caching, and safe refresh behavior
   - parent summary UI derived from local learner state only
   - stronger direct unit and component coverage for evaluation, progression, persistence, and learner mechanics
+  - critical learner, parent-summary, and offline-update Playwright coverage
 
 ## Best entry points in the codebase
 
@@ -38,31 +39,30 @@ Last updated: 2026-03-26 after PR #54 merge
 - `#51` offline and update flow batch
 - `#53` parent summary batch
 - `#54` QA hardening batch
+- `#55` critical learner-flow E2E batch
 
 ## Recommended next batch
 
-Most natural next step: critical-path end-to-end coverage.
+Most natural next step: deployed verification and production-like smoke coverage.
 
 Suggested next issues to create or execute:
 
-- `MIP-036` Add end-to-end coverage for critical learner flows
-- after that: `MIP-037` deployed Cloudflare Pages verification and production-like smoke coverage
+- `MIP-037` Deployed Cloudflare Pages verification and production-like smoke coverage
+- after that: fix any deployment-only regressions or deepen offline-return coverage if the deployed checks surface gaps
 
-## If continuing with MIP-036
+## If continuing with deployed verification
 
 Focus areas:
 
-- expand `tests/e2e/` beyond the existing smoke test
-- cover profile creation through the parent route
-- cover starting a lesson from the learner route
-- cover completing the first lesson and reaching the wrap-up route
-- cover resume behavior after a refresh or reload
-- add offline-start or offline-return assertions only if they stay practical and stable in Playwright
+- verify the actual deployed Pages environment still boots and routes correctly
+- smoke-test learner, parent, and offline-update surfaces against the deployed build
+- compare deployed behavior against local preview behavior, especially for PWA/update prompts and nested learner routes
+- keep fixes small and targeted if a deployment-only mismatch appears
 
 Likely files to touch:
 
 - `tests/e2e/`
-- possibly tiny testability tweaks in `src/routes/learn.tsx`, `src/routes/learn.map.tsx`, `src/routes/learn.completed.tsx`, and `src/routes/parents.tsx`
+- deployment config and Pages preview settings if needed
 - keep business rules in the existing `src/lib/*` modules rather than re-implementing them in tests or routes
 
 ## Operational conventions used in this repo
@@ -77,16 +77,16 @@ Likely files to touch:
 
 ## Current branch note
 
-PR `#54` is already merged. Start from updated `main` for the next batch.
+PR `#55` is already merged. Start from updated `main` for the next batch.
 
 ## Recommended first prompt for the next agent
 
 Read `AGENT-HANDOFF.md` and `progress.txt`, then continue from updated `main`.
 
-Start with `MIP-036`.
+Start with deployed verification work.
 Follow the repo workflow:
 - one new branch from `main`
 - one main commit per issue
 - append `progress.txt` before opening a PR
 
-Focus first on stable end-to-end coverage for profile creation, lesson start, lesson completion, and resume behavior. Add offline-return assertions only where the Playwright flow stays reliable, then run `pnpm lint` and `pnpm test` before opening the PR.
+Focus first on production-like Cloudflare Pages verification and deployed smoke checks. Reuse the broader local Playwright coverage as the baseline, then run `pnpm lint` and `pnpm test` before opening the PR.
