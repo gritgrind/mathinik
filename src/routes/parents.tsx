@@ -7,6 +7,7 @@ import {
   normalizeContentPack,
   normalizeStateStore,
 } from '~/lib/models/app-models'
+import { getParentSummaryModel } from '~/lib/parent-summary'
 import {
   addProfileToStateStore,
   createBrowserStatePersistence,
@@ -83,6 +84,14 @@ function ParentsRoute() {
         'Placement shell recommendation saved locally.'
     )
   }, [activeProfile, lessonOptions])
+
+  const activeProfileRecord =
+    localState.profiles.find((profile) => profile.id === activeProfile?.id) ??
+    null
+  const parentSummary = getParentSummaryModel(
+    activeProfileRecord,
+    contentRepository
+  )
 
   function handleCreateProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -551,6 +560,121 @@ function ParentsRoute() {
               {localState.profiles.find(
                 (profile) => profile.id === activeProfile?.id
               )?.avatar?.color ?? 'default'}
+            </p>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+        <Card className="border-border/60 bg-card/90 shadow-xl shadow-primary/10">
+          <CardHeader>
+            <h2 className="text-2xl font-black tracking-tight">
+              Parent summary
+            </h2>
+          </CardHeader>
+          <CardContent className="space-y-5 text-sm leading-6 text-muted-foreground">
+            <p>
+              A simple local summary for{' '}
+              {parentSummary?.childName ?? 'the active child'}.
+            </p>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              <div className="rounded-[1.5rem] border border-border/60 bg-background/70 p-4">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                  Completed lessons
+                </p>
+                <p className="mt-2 text-2xl font-black tracking-tight text-foreground">
+                  {parentSummary?.completedLessons.length ?? 0}
+                </p>
+              </div>
+              <div className="rounded-[1.5rem] border border-border/60 bg-background/70 p-4">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                  Total stars
+                </p>
+                <p className="mt-2 text-2xl font-black tracking-tight text-foreground">
+                  {parentSummary?.rewards.totalStars ?? 0}
+                </p>
+              </div>
+              <div className="rounded-[1.5rem] border border-border/60 bg-background/70 p-4">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">
+                  Recent activity
+                </p>
+                <p className="mt-2 text-sm font-semibold text-foreground">
+                  {parentSummary?.recentActivity.lessonTitle ??
+                    'No recent activity yet'}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="space-y-3 rounded-[1.75rem] border border-border/60 bg-background/70 p-4">
+                <p className="text-sm font-black uppercase tracking-[0.18em] text-primary">
+                  Lesson history
+                </p>
+                {parentSummary?.completedLessons.length ? (
+                  parentSummary.completedLessons.map((lesson) => (
+                    <div key={lesson.lessonId}>
+                      <p className="font-semibold text-foreground">
+                        {lesson.title}
+                      </p>
+                      <p>
+                        Best stars: {lesson.bestStars} · Last played:{' '}
+                        {lesson.lastPlayedAt ?? 'Unknown'}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p>No completed lessons yet.</p>
+                )}
+              </div>
+
+              <div className="space-y-3 rounded-[1.75rem] border border-border/60 bg-background/70 p-4">
+                <p className="text-sm font-black uppercase tracking-[0.18em] text-primary">
+                  Mastery and rewards
+                </p>
+                {parentSummary?.mastery.length ? (
+                  parentSummary.mastery.map((entry) => (
+                    <div key={entry.skillId}>
+                      <p className="font-semibold text-foreground">
+                        {entry.title}
+                      </p>
+                      <p>
+                        {entry.status} · mastery {Math.round(entry.value * 100)}
+                        %
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p>No mastery updates yet.</p>
+                )}
+                <p>
+                  Badges:{' '}
+                  {parentSummary?.rewards.badgeIds.join(', ') || 'None yet'}
+                </p>
+                <p>
+                  Map rewards:{' '}
+                  {parentSummary?.rewards.mapNodeIds.join(', ') || 'None yet'}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/60 bg-secondary text-secondary-foreground shadow-xl shadow-secondary/15">
+          <CardHeader>
+            <h2 className="text-2xl font-black tracking-tight">
+              Resume context
+            </h2>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-6 text-secondary-foreground/85">
+            <p>Mode: {parentSummary?.recentActivity.type ?? 'none'}</p>
+            <p>
+              Lesson: {parentSummary?.recentActivity.lessonTitle ?? 'None yet'}
+            </p>
+            <p>
+              Activity:{' '}
+              {parentSummary?.recentActivity.activityId ??
+                'No saved activity step'}
             </p>
           </CardContent>
         </Card>
